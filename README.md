@@ -4,6 +4,10 @@ Este proyecto implementa una tienda de videojuegos usando una arquitectura de mi
 
 La aplicacion esta separada por responsabilidades: catalogo de videojuegos, usuarios, autenticacion, carrito, pagos, pedidos, resenas e inventario. Los microservicios se descubren entre si usando Eureka y se consumen desde un unico punto de entrada mediante API Gateway.
 
+## Integrante
+
+- Jesus Emilio
+
 ## Arquitectura General
 
 ```text
@@ -63,6 +67,16 @@ config-microservicios/*.properties
 - Lombok
 - Maven Wrapper
 
+## Coleccion Postman
+
+El proyecto incluye una coleccion Postman en:
+
+```text
+postman/TiendaVideojuegos.postman_collection.json
+```
+
+La coleccion usa la variable `baseUrl` con el valor `http://localhost:8080` para probar todo a traves del API Gateway.
+
 ## Requisitos
 
 Antes de ejecutar el proyecto necesitas:
@@ -113,7 +127,7 @@ Es importante levantar los servicios en este orden.
 
 ```bash
 cd eureka
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 Eureka quedara disponible en:
@@ -126,7 +140,7 @@ http://localhost:8761
 
 ```bash
 cd config-server
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 Config Server quedara disponible en:
@@ -148,49 +162,49 @@ Abrir una terminal por cada microservicio:
 
 ```bash
 cd videojuegos
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 ```bash
 cd usuarios
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 ```bash
 cd authentication
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 ```bash
 cd carrito
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 ```bash
 cd pagos
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 ```bash
 cd pedidos
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 ```bash
 cd resenas
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 ```bash
 cd inventario
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 ### 4. Levantar API Gateway
 
 ```bash
 cd api-gateway
-./mvnw spring-boot:run
+bash ./mvnw spring-boot:run
 ```
 
 El gateway quedara disponible en:
@@ -404,7 +418,7 @@ Nota: este proyecto no genera JWT ni maneja sesiones. El login solo valida crede
 
 ## Microservicio Carrito
 
-Gestiona los productos agregados al carrito por usuario.
+Gestiona los productos agregados al carrito por usuario. Las respuestas muestran el ID del videojuego y tambien su nombre.
 
 Este servicio se comunica con `videojuegos` usando OpenFeign para validar que el videojuego exista y obtener su precio.
 
@@ -415,6 +429,7 @@ Campos relevantes:
 - `id`
 - `usuarioId`
 - `videojuegoId`
+- `nombreVideojuego`
 - `cantidad`
 - `precioUnitario`
 - `subtotal`
@@ -424,11 +439,11 @@ Campos relevantes:
 
 | Metodo | Ruta | Funcion |
 | --- | --- | --- |
-| `GET` | `/carrito/usuario/{usuarioId}` | Lista items del carrito de un usuario. |
-| `GET` | `/carrito/usuario/{usuarioId}/resumen` | Muestra items y total del carrito. |
-| `GET` | `/carrito/{id}` | Busca item por ID. |
-| `POST` | `/carrito` | Agrega un videojuego al carrito. |
-| `PUT` | `/carrito/{id}/cantidad` | Actualiza cantidad de un item. |
+| `GET` | `/carrito/usuario/{usuarioId}` | Lista items del carrito de un usuario con nombre del videojuego. |
+| `GET` | `/carrito/usuario/{usuarioId}/resumen` | Muestra items con nombre del videojuego y total del carrito. |
+| `GET` | `/carrito/{id}` | Busca item por ID e incluye nombre del videojuego. |
+| `POST` | `/carrito` | Agrega un videojuego al carrito y responde con su nombre. |
+| `PUT` | `/carrito/{id}/cantidad` | Actualiza cantidad de un item y responde con nombre del videojuego. |
 | `DELETE` | `/carrito/{id}` | Elimina un item. |
 | `DELETE` | `/carrito/usuario/{usuarioId}` | Vacia el carrito de un usuario. |
 
@@ -506,7 +521,7 @@ Tambien se puede enviar otro estado mediante `/pagos/{id}/estado`.
 
 ## Microservicio Pedidos
 
-Gestiona pedidos y reportes.
+Gestiona pedidos y reportes. Las respuestas principales incluyen datos del usuario y el nombre del juego.
 
 Este servicio valida que el usuario exista llamando a `usuarios` con OpenFeign.
 
@@ -516,6 +531,8 @@ Campos relevantes:
 
 - `id`
 - `usuarioId`
+- `nombreUsuario`
+- `correoUsuario`
 - `nombreJuego`
 - `precio`
 - `fechaPedido`
@@ -524,15 +541,15 @@ Campos relevantes:
 
 | Metodo | Ruta | Funcion |
 | --- | --- | --- |
-| `GET` | `/pedidos` | Lista todos los pedidos. |
-| `GET` | `/pedidos/{id}` | Busca pedido por ID. |
-| `POST` | `/pedidos` | Crea un pedido. |
-| `PUT` | `/pedidos/{id}` | Actualiza un pedido. |
+| `GET` | `/pedidos` | Lista todos los pedidos con usuario y nombre del juego. |
+| `GET` | `/pedidos/{id}` | Busca pedido por ID con usuario y nombre del juego. |
+| `POST` | `/pedidos` | Crea un pedido y responde con usuario y nombre del juego. |
+| `PUT` | `/pedidos/{id}` | Actualiza un pedido y responde con usuario y nombre del juego. |
 | `DELETE` | `/pedidos/{id}` | Elimina un pedido. |
 | `GET` | `/pedidos/detalle` | Lista pedidos con datos del usuario. |
-| `GET` | `/pedidos/usuario/{usuarioId}` | Lista pedidos de un usuario. |
-| `GET` | `/pedidos/reportes/fecha?desde=YYYY-MM-DD&hasta=YYYY-MM-DD` | Reporte por rango de fecha. |
-| `GET` | `/pedidos/reportes/precio?minimo=...&maximo=...` | Reporte por rango de precio. |
+| `GET` | `/pedidos/usuario/{usuarioId}` | Lista pedidos de un usuario con sus datos. |
+| `GET` | `/pedidos/reportes/fecha?desde=YYYY-MM-DD&hasta=YYYY-MM-DD` | Reporte por rango de fecha con datos de usuario. |
+| `GET` | `/pedidos/reportes/precio?minimo=...&maximo=...` | Reporte por rango de precio con datos de usuario. |
 
 ### Ejemplo de creacion
 
@@ -547,7 +564,7 @@ Campos relevantes:
 
 ## Microservicio Resenas
 
-Gestiona resenas de videojuegos.
+Gestiona resenas de videojuegos. Las respuestas principales incluyen el nombre y correo del usuario que hizo la resena.
 
 Este servicio valida que el usuario exista llamando a `usuarios` con OpenFeign.
 
@@ -557,6 +574,8 @@ Campos relevantes:
 
 - `id`
 - `usuarioId`
+- `nombreUsuario`
+- `correoUsuario`
 - `nombreJuego`
 - `comentario`
 - `puntuacion`
@@ -566,15 +585,15 @@ Campos relevantes:
 
 | Metodo | Ruta | Funcion |
 | --- | --- | --- |
-| `GET` | `/resenas` | Lista todas las resenas. |
-| `GET` | `/resenas/{id}` | Busca resena por ID. |
-| `POST` | `/resenas` | Crea una resena. |
-| `PUT` | `/resenas/{id}` | Actualiza una resena. |
+| `GET` | `/resenas` | Lista todas las resenas con datos del usuario. |
+| `GET` | `/resenas/{id}` | Busca resena por ID con datos del usuario. |
+| `POST` | `/resenas` | Crea una resena y responde con datos del usuario. |
+| `PUT` | `/resenas/{id}` | Actualiza una resena y responde con datos del usuario. |
 | `DELETE` | `/resenas/{id}` | Elimina una resena. |
 | `GET` | `/resenas/detalle` | Lista resenas con datos del usuario. |
-| `GET` | `/resenas/usuario/{usuarioId}` | Lista resenas de un usuario. |
-| `GET` | `/resenas/reportes/fecha?desde=YYYY-MM-DD&hasta=YYYY-MM-DD` | Reporte por rango de fecha. |
-| `GET` | `/resenas/reportes/puntuacion?min=1&max=5` | Reporte por puntuacion. |
+| `GET` | `/resenas/usuario/{usuarioId}` | Lista resenas de un usuario con sus datos. |
+| `GET` | `/resenas/reportes/fecha?desde=YYYY-MM-DD&hasta=YYYY-MM-DD` | Reporte por rango de fecha con datos del usuario. |
+| `GET` | `/resenas/reportes/puntuacion?min=1&max=5` | Reporte por puntuacion con datos del usuario. |
 
 ### Ejemplo de creacion
 
@@ -592,7 +611,7 @@ La puntuacion debe estar entre `1` y `5`.
 
 ## Microservicio Inventario
 
-Gestiona stock de videojuegos.
+Gestiona stock de videojuegos. Las respuestas muestran el ID del videojuego y tambien su nombre.
 
 Este servicio se comunica con `videojuegos` usando OpenFeign para validar que el videojuego exista.
 
@@ -602,6 +621,7 @@ Campos relevantes:
 
 - `id`
 - `videojuegoId`
+- `nombreVideojuego`
 - `stock`
 - `stockMinimo`
 - `fechaActualizacion`
@@ -610,15 +630,15 @@ Campos relevantes:
 
 | Metodo | Ruta | Funcion |
 | --- | --- | --- |
-| `GET` | `/inventario` | Lista todo el inventario. |
-| `GET` | `/inventario/bajo-stock` | Lista inventarios con stock menor o igual al minimo. |
-| `GET` | `/inventario/{id}` | Busca inventario por ID. |
-| `GET` | `/inventario/videojuego/{videojuegoId}` | Busca inventario por videojuego. |
-| `POST` | `/inventario` | Crea inventario para un videojuego. |
-| `PUT` | `/inventario/{id}` | Actualiza inventario. |
-| `PUT` | `/inventario/videojuego/{videojuegoId}/stock` | Reemplaza el stock actual. |
-| `PUT` | `/inventario/videojuego/{videojuegoId}/entrada` | Aumenta stock. |
-| `PUT` | `/inventario/videojuego/{videojuegoId}/salida` | Disminuye stock. |
+| `GET` | `/inventario` | Lista todo el inventario con nombre del videojuego. |
+| `GET` | `/inventario/bajo-stock` | Lista inventarios con stock menor o igual al minimo, incluyendo nombre del videojuego. |
+| `GET` | `/inventario/{id}` | Busca inventario por ID con nombre del videojuego. |
+| `GET` | `/inventario/videojuego/{videojuegoId}` | Busca inventario por videojuego e incluye su nombre. |
+| `POST` | `/inventario` | Crea inventario para un videojuego y responde con su nombre. |
+| `PUT` | `/inventario/{id}` | Actualiza inventario y responde con nombre del videojuego. |
+| `PUT` | `/inventario/videojuego/{videojuegoId}/stock` | Reemplaza el stock actual y responde con nombre del videojuego. |
+| `PUT` | `/inventario/videojuego/{videojuegoId}/entrada` | Aumenta stock y responde con nombre del videojuego. |
+| `PUT` | `/inventario/videojuego/{videojuegoId}/salida` | Disminuye stock y responde con nombre del videojuego. |
 | `DELETE` | `/inventario/{id}` | Elimina inventario. |
 
 ### Ejemplo de crear inventario
@@ -661,24 +681,220 @@ El proyecto carga datos iniciales con Flyway:
 - Pedidos iniciales.
 - Resenas iniciales.
 
-## Ejemplos Rapidos con curl
+## Cuentas Demo y Credenciales de Prueba
+
+Estas credenciales son solo para pruebas locales y datos semilla del proyecto. No deben usarse en produccion.
+
+| Usuario | Correo | Rol | Password |
+| --- | --- | --- | --- |
+| Admin Tienda | `admin@tiendajuegos.cl` | `ADMIN` | `admin123` |
+| Jesus Emilio | `jesus@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Camila Torres | `camila@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Matias Rojas | `matias@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Sofia Morales | `sofia@tiendajuegos.cl` | `CLIENTE` | `sofia123` |
+| Diego Fernandez | `diego@tiendajuegos.cl` | `CLIENTE` | `diego123` |
+| Valentina Soto | `valentina@tiendajuegos.cl` | `CLIENTE` | `valentina123` |
+| Benjamin Herrera | `benjamin@tiendajuegos.cl` | `CLIENTE` | `benjamin123` |
+
+Carritos demo:
+
+| Usuario ID | Contenido inicial |
+| --- | --- |
+| `2` | Cyberpunk 2077, Minecraft |
+| `3` | Stardew Valley, Elden Ring |
+| `4` | Hades, Portal |
+| `5` | Baldurs Gate 3, Hollow Knight |
+| `6` | Forza Horizon 5, Celeste |
+| `7` | Portal 2, Terraria |
+| `8` | Resident Evil 4 Remake, The Witcher 3 Wild Hunt |
+
+## Prueba Definitiva con curl
+
+Estos comandos se ejecutan cuando todos los servicios estan levantados y el API Gateway esta disponible en `http://localhost:8080`.
+
+Para probar rapido sin cambiar datos, puedes usar:
+
+```bash
+bash scripts/test-definitivo.sh
+```
+
+El script revisa:
+
+- Gateway activo.
+- Login con credenciales demo.
+- Videojuegos, usuarios, pagos, pedidos, resenas, inventario y carrito.
+- Campos enriquecidos como `nombreVideojuego`, `nombreUsuario` y `correoUsuario`.
+- Manejo de errores con `validationErrors`.
+
+### Comandos de verificacion general
+
+Ver servicios registrados en Eureka:
+
+```bash
+curl http://localhost:8761/eureka/apps
+```
+
+Ver configuracion servida por Config Server:
+
+```bash
+curl http://localhost:8888/videojuegos/default
+curl http://localhost:8888/api-gateway/default
+```
+
+Probar que el gateway responde:
+
+```bash
+curl -i http://localhost:8080/videojuegos
+```
+
+### Login con usuarios de prueba
+
+Login de administrador:
+
+```bash
+curl -i -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "correo": "admin@tiendajuegos.cl",
+    "password": "admin123"
+  }'
+```
+
+Login de cliente:
+
+```bash
+curl -i -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "correo": "jesus@tiendajuegos.cl",
+    "password": "cliente123"
+  }'
+```
+
+Login fallido controlado:
+
+```bash
+curl -i -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "correo": "jesus@tiendajuegos.cl",
+    "password": "incorrecta"
+  }'
+```
+
+### Comandos por microservicio
 
 Listar videojuegos:
 
 ```bash
-curl http://localhost:8080/videojuegos
+curl -i http://localhost:8080/videojuegos
 ```
 
 Buscar videojuego por ID:
 
 ```bash
-curl http://localhost:8080/videojuegos/1
+curl -i http://localhost:8080/videojuegos/1
 ```
 
-Registrar usuario:
+Buscar videojuegos por categoria:
 
 ```bash
-curl -X POST http://localhost:8080/auth/registro \
+curl -i "http://localhost:8080/videojuegos/buscar?categoria=RPG"
+```
+
+Listar usuarios:
+
+```bash
+curl -i http://localhost:8080/usuarios
+```
+
+Buscar usuario por correo:
+
+```bash
+curl -i "http://localhost:8080/usuarios/buscar?correo=jesus@tiendajuegos.cl"
+```
+
+Listar credenciales:
+
+```bash
+curl -i http://localhost:8080/auth/credenciales
+```
+
+Ver carrito con nombre del videojuego:
+
+```bash
+curl -i http://localhost:8080/carrito/usuario/2
+```
+
+Ver resumen del carrito:
+
+```bash
+curl -i http://localhost:8080/carrito/usuario/2/resumen
+```
+
+Listar pagos:
+
+```bash
+curl -i http://localhost:8080/pagos
+```
+
+Listar pedidos con datos del usuario:
+
+```bash
+curl -i http://localhost:8080/pedidos
+```
+
+Listar pedidos de un usuario:
+
+```bash
+curl -i http://localhost:8080/pedidos/usuario/2
+```
+
+Listar resenas con datos del usuario:
+
+```bash
+curl -i http://localhost:8080/resenas
+```
+
+Filtrar resenas por puntuacion:
+
+```bash
+curl -i "http://localhost:8080/resenas/reportes/puntuacion?min=4&max=5"
+```
+
+Listar inventario con nombre del videojuego:
+
+```bash
+curl -i http://localhost:8080/inventario
+```
+
+Ver inventario de un videojuego:
+
+```bash
+curl -i http://localhost:8080/inventario/videojuego/1
+```
+
+Probar validaciones y error JSON controlado:
+
+```bash
+curl -i -X POST http://localhost:8080/videojuegos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "",
+    "categoria": "",
+    "precio": -1,
+    "plataforma": ""
+  }'
+```
+
+### Comandos que modifican datos
+
+Estos comandos sirven para demostrar CRUD, pero cambian la base de datos.
+
+Registrar usuario nuevo:
+
+```bash
+curl -i -X POST http://localhost:8080/auth/registro \
   -H "Content-Type: application/json" \
   -d '{
     "nombre": "Juan",
@@ -691,21 +907,10 @@ curl -X POST http://localhost:8080/auth/registro \
   }'
 ```
 
-Login:
-
-```bash
-curl -X POST http://localhost:8080/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "correo": "juan@tiendajuegos.cl",
-    "password": "123456"
-  }'
-```
-
 Agregar item al carrito:
 
 ```bash
-curl -X POST http://localhost:8080/carrito \
+curl -i -X POST http://localhost:8080/carrito \
   -H "Content-Type: application/json" \
   -d '{
     "usuarioId": 2,
@@ -714,16 +919,10 @@ curl -X POST http://localhost:8080/carrito \
   }'
 ```
 
-Ver resumen del carrito:
-
-```bash
-curl http://localhost:8080/carrito/usuario/2/resumen
-```
-
 Crear pago:
 
 ```bash
-curl -X POST http://localhost:8080/pagos \
+curl -i -X POST http://localhost:8080/pagos \
   -H "Content-Type: application/json" \
   -d '{
     "usuarioId": 2,
@@ -731,10 +930,25 @@ curl -X POST http://localhost:8080/pagos \
   }'
 ```
 
+Importante: al crear un pago se vacia el carrito del usuario.
+
+Crear pedido:
+
+```bash
+curl -i -X POST http://localhost:8080/pedidos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "usuarioId": 2,
+    "nombreJuego": "Cyberpunk 2077",
+    "precio": 37990,
+    "fechaPedido": "2026-05-20"
+  }'
+```
+
 Crear resena:
 
 ```bash
-curl -X POST http://localhost:8080/resenas \
+curl -i -X POST http://localhost:8080/resenas \
   -H "Content-Type: application/json" \
   -d '{
     "usuarioId": 2,
@@ -748,7 +962,7 @@ curl -X POST http://localhost:8080/resenas \
 Aumentar stock:
 
 ```bash
-curl -X PUT http://localhost:8080/inventario/videojuego/1/entrada \
+curl -i -X PUT http://localhost:8080/inventario/videojuego/1/entrada \
   -H "Content-Type: application/json" \
   -d '{
     "cantidad": 5
@@ -794,6 +1008,43 @@ export INVENTARIO_PORT=8088
 - Pedidos y resenas validan que el usuario exista.
 - Inventario valida que el videojuego exista.
 - No se puede disminuir stock por debajo de 0.
+
+## Manejo de Errores
+
+Cada microservicio de negocio tiene un `GlobalExceptionHandler` con `@RestControllerAdvice`. Esto permite responder errores en formato JSON controlado.
+
+Los errores manejados incluyen:
+
+- Validaciones de `@Valid`, por ejemplo campos obligatorios o formatos invalidos.
+- Excepciones `ResponseStatusException`, por ejemplo conflictos, no autorizados o fallas al consultar otro microservicio.
+- Errores internos no controlados, devueltos como HTTP 500.
+
+Ejemplo de respuesta de error:
+
+```json
+{
+  "timestamp": "2026-05-20T12:00:00",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Datos invalidos",
+  "path": "/videojuegos",
+  "validationErrors": {
+    "nombre": "El nombre es obligatorio"
+  }
+}
+```
+
+## Logs
+
+Los controllers y handlers de excepciones usan SLF4J para dejar registro de operaciones importantes:
+
+- Listados y busquedas.
+- Creacion, actualizacion y eliminacion de recursos.
+- Intentos de login y registro.
+- Operaciones de carrito, pagos, pedidos, resenas e inventario.
+- Errores de validacion, errores controlados y errores internos.
+
+Los logs se ven en la consola donde se ejecuta cada microservicio.
 
 ## Consideraciones Importantes
 
@@ -873,4 +1124,3 @@ El proyecto esta preparado como backend REST de microservicios para una tienda d
 - Gestionar resenas.
 - Gestionar inventario.
 - Consultar reportes basicos por fecha, precio, puntuacion y stock.
-

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 @Data
 public class PedidoDTO {
+    private Long id;
     private Long usuarioId;
     private String nombreJuego;
     private Double precio;

@@ -3,6 +3,7 @@ package cl.duoc.carrito.service;
 import cl.duoc.carrito.client.VideoJuegoClient;
 import cl.duoc.carrito.dto.ActualizarCantidadRequest;
 import cl.duoc.carrito.dto.AgregarItemCarritoRequest;
+import cl.duoc.carrito.dto.ItemCarritoResponse;
 import cl.duoc.carrito.dto.ResumenCarritoResponse;
 import cl.duoc.carrito.dto.VideoJuegoResponse;
 import cl.duoc.carrito.model.ItemCarrito;
@@ -30,18 +31,31 @@ public class CarritoService {
         return itemCarritoRepository.findByUsuarioId(usuarioId);
     }
 
+    public List<ItemCarritoResponse> listarPorUsuarioConVideojuego(Long usuarioId) {
+        return listarPorUsuario(usuarioId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public Optional<ItemCarrito> buscarPorId(Long id) {
         return itemCarritoRepository.findById(id);
     }
 
+    public Optional<ItemCarritoResponse> buscarPorIdConVideojuego(Long id) {
+        return buscarPorId(id).map(this::toResponse);
+    }
+
     public ResumenCarritoResponse obtenerResumen(Long usuarioId) {
         List<ItemCarrito> items = listarPorUsuario(usuarioId);
+        List<ItemCarritoResponse> itemsConVideojuego = items.stream()
+                .map(this::toResponse)
+                .toList();
         Integer total = items.stream()
                 .map(ItemCarrito::getSubtotal)
                 .filter(subtotal -> subtotal != null)
                 .reduce(0, Integer::sum);
 
-        return new ResumenCarritoResponse(usuarioId, items, total);
+        return new ResumenCarritoResponse(usuarioId, itemsConVideojuego, total);
     }
 
     @Transactional
@@ -67,12 +81,22 @@ public class CarritoService {
     }
 
     @Transactional
+    public ItemCarritoResponse agregarConVideojuego(AgregarItemCarritoRequest request) {
+        return toResponse(agregar(request));
+    }
+
+    @Transactional
     public Optional<ItemCarrito> actualizarCantidad(Long id, ActualizarCantidadRequest request) {
         return itemCarritoRepository.findById(id)
                 .map(item -> {
                     item.setCantidad(request.cantidad());
                     return itemCarritoRepository.save(item);
                 });
+    }
+
+    @Transactional
+    public Optional<ItemCarritoResponse> actualizarCantidadConVideojuego(Long id, ActualizarCantidadRequest request) {
+        return actualizarCantidad(id, request).map(this::toResponse);
     }
 
     @Transactional
@@ -106,5 +130,30 @@ public class CarritoService {
         }
 
         return videoJuego.precio();
+    }
+
+    private ItemCarritoResponse toResponse(ItemCarrito item) {
+        String nombreVideojuego = obtenerNombreVideojuego(item.getVideojuegoId());
+
+        return new ItemCarritoResponse(
+                item.getId(),
+                item.getUsuarioId(),
+                item.getVideojuegoId(),
+                nombreVideojuego,
+                item.getCantidad(),
+                item.getPrecioUnitario(),
+                item.getSubtotal(),
+                item.getFechaAgregado()
+        );
+    }
+
+    private String obtenerNombreVideojuego(Long videojuegoId) {
+        try {
+            return videoJuegoClient.buscarPorId(videojuegoId).nombre();
+        } catch (FeignException.NotFound exception) {
+            return "Videojuego no encontrado";
+        } catch (FeignException exception) {
+            return "Videojuego no disponible";
+        }
     }
 }

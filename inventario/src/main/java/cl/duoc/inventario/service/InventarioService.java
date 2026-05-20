@@ -3,7 +3,9 @@ package cl.duoc.inventario.service;
 import cl.duoc.inventario.client.VideoJuegoClient;
 import cl.duoc.inventario.dto.ActualizarStockRequest;
 import cl.duoc.inventario.dto.CrearInventarioRequest;
+import cl.duoc.inventario.dto.InventarioResponse;
 import cl.duoc.inventario.dto.MovimientoStockRequest;
+import cl.duoc.inventario.dto.VideoJuegoResponse;
 import cl.duoc.inventario.model.Inventario;
 import cl.duoc.inventario.repository.InventarioRepository;
 import feign.FeignException;
@@ -29,9 +31,21 @@ public class InventarioService {
         return inventarioRepository.findAll();
     }
 
+    public List<InventarioResponse> listarConVideojuego() {
+        return listar().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public List<Inventario> listarBajoStock() {
         return inventarioRepository.findAll().stream()
                 .filter(inventario -> inventario.getStock() <= inventario.getStockMinimo())
+                .toList();
+    }
+
+    public List<InventarioResponse> listarBajoStockConVideojuego() {
+        return listarBajoStock().stream()
+                .map(this::toResponse)
                 .toList();
     }
 
@@ -39,8 +53,16 @@ public class InventarioService {
         return inventarioRepository.findById(id);
     }
 
+    public Optional<InventarioResponse> buscarPorIdConVideojuego(Long id) {
+        return buscarPorId(id).map(this::toResponse);
+    }
+
     public Optional<Inventario> buscarPorVideojuego(Long videojuegoId) {
         return inventarioRepository.findByVideojuegoId(videojuegoId);
+    }
+
+    public Optional<InventarioResponse> buscarPorVideojuegoConDetalle(Long videojuegoId) {
+        return buscarPorVideojuego(videojuegoId).map(this::toResponse);
     }
 
     @Transactional
@@ -60,6 +82,11 @@ public class InventarioService {
     }
 
     @Transactional
+    public InventarioResponse crearConDetalle(CrearInventarioRequest request) {
+        return toResponse(crear(request));
+    }
+
+    @Transactional
     public Optional<Inventario> actualizar(Long id, CrearInventarioRequest request) {
         validarVideojuegoExiste(request.videojuegoId());
         validarVideojuegoDisponibleParaActualizar(id, request.videojuegoId());
@@ -75,6 +102,11 @@ public class InventarioService {
     }
 
     @Transactional
+    public Optional<InventarioResponse> actualizarConDetalle(Long id, CrearInventarioRequest request) {
+        return actualizar(id, request).map(this::toResponse);
+    }
+
+    @Transactional
     public Optional<Inventario> actualizarStockPorVideojuego(Long videojuegoId, ActualizarStockRequest request) {
         return inventarioRepository.findByVideojuegoId(videojuegoId)
                 .map(inventario -> {
@@ -84,12 +116,24 @@ public class InventarioService {
     }
 
     @Transactional
+    public Optional<InventarioResponse> actualizarStockPorVideojuegoConDetalle(
+            Long videojuegoId,
+            ActualizarStockRequest request) {
+        return actualizarStockPorVideojuego(videojuegoId, request).map(this::toResponse);
+    }
+
+    @Transactional
     public Optional<Inventario> aumentarStock(Long videojuegoId, MovimientoStockRequest request) {
         return inventarioRepository.findByVideojuegoId(videojuegoId)
                 .map(inventario -> {
                     inventario.setStock(inventario.getStock() + request.cantidad());
                     return inventarioRepository.save(inventario);
                 });
+    }
+
+    @Transactional
+    public Optional<InventarioResponse> aumentarStockConDetalle(Long videojuegoId, MovimientoStockRequest request) {
+        return aumentarStock(videojuegoId, request).map(this::toResponse);
     }
 
     @Transactional
@@ -103,6 +147,11 @@ public class InventarioService {
                     inventario.setStock(inventario.getStock() - request.cantidad());
                     return inventarioRepository.save(inventario);
                 });
+    }
+
+    @Transactional
+    public Optional<InventarioResponse> disminuirStockConDetalle(Long videojuegoId, MovimientoStockRequest request) {
+        return disminuirStock(videojuegoId, request).map(this::toResponse);
     }
 
     @Transactional
@@ -131,5 +180,28 @@ public class InventarioService {
                 .ifPresent(inventario -> {
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe inventario para este videojuego");
                 });
+    }
+
+    private InventarioResponse toResponse(Inventario inventario) {
+        VideoJuegoResponse videoJuego = obtenerVideojuego(inventario.getVideojuegoId());
+
+        return new InventarioResponse(
+                inventario.getId(),
+                inventario.getVideojuegoId(),
+                videoJuego.nombre(),
+                inventario.getStock(),
+                inventario.getStockMinimo(),
+                inventario.getFechaActualizacion()
+        );
+    }
+
+    private VideoJuegoResponse obtenerVideojuego(Long videojuegoId) {
+        try {
+            return videoJuegoClient.buscarPorId(videojuegoId);
+        } catch (FeignException.NotFound exception) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Videojuego no encontrado");
+        } catch (FeignException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo consultar el microservicio videojuegos");
+        }
     }
 }

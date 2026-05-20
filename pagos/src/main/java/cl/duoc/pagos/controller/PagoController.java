@@ -5,6 +5,8 @@ import cl.duoc.pagos.dto.CrearPagoRequest;
 import cl.duoc.pagos.model.Pago;
 import cl.duoc.pagos.service.PagoService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +23,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/pagos")
 public class PagoController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PagoController.class);
+
     private final PagoService pagoService;
 
     public PagoController(PagoService pagoService) {
@@ -28,24 +32,28 @@ public class PagoController {
     }
 
     @GetMapping
-    public List<Pago> listar() {
-        return pagoService.listar();
+    public ResponseEntity<List<Pago>> listar() {
+        LOGGER.info("Listando pagos");
+        return ResponseEntity.ok(pagoService.listar());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Pago> buscarPorId(@PathVariable Long id) {
+        LOGGER.info("Buscando pago id={}", id);
         return pagoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public List<Pago> listarPorUsuario(@PathVariable Long usuarioId) {
-        return pagoService.listarPorUsuario(usuarioId);
+    public ResponseEntity<List<Pago>> listarPorUsuario(@PathVariable Long usuarioId) {
+        LOGGER.info("Listando pagos usuarioId={}", usuarioId);
+        return ResponseEntity.ok(pagoService.listarPorUsuario(usuarioId));
     }
 
     @PostMapping
     public ResponseEntity<Pago> crear(@Valid @RequestBody CrearPagoRequest request) {
+        LOGGER.info("Creando pago usuarioId={} metodo={}", request.usuarioId(), request.metodoPago());
         Pago pago = pagoService.crear(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(pago);
     }
@@ -54,6 +62,7 @@ public class PagoController {
     public ResponseEntity<Pago> actualizarEstado(
             @PathVariable Long id,
             @Valid @RequestBody ActualizarEstadoPagoRequest request) {
+        LOGGER.info("Actualizando estado pago id={} estado={}", id, request.estado());
         return pagoService.actualizarEstado(id, request)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -61,7 +70,9 @@ public class PagoController {
 
     @PutMapping("/{id}/anular")
     public ResponseEntity<Void> anular(@PathVariable Long id) {
+        LOGGER.info("Anulando pago id={}", id);
         if (!pagoService.anular(id)) {
+            LOGGER.warn("No se encontro pago para anular id={}", id);
             return ResponseEntity.notFound().build();
         }
 
@@ -70,7 +81,9 @@ public class PagoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        LOGGER.info("Eliminando pago id={}", id);
         if (!pagoService.eliminar(id)) {
+            LOGGER.warn("No se encontro pago para eliminar id={}", id);
             return ResponseEntity.notFound().build();
         }
 

@@ -10,6 +10,7 @@ public class PedidoMapper {
 
     public PedidoDTO toDTO(Pedido pedido, UsuarioDTO usuario){
         PedidoDTO dto = new PedidoDTO();
+        dto.setId(pedido.getId());
         dto.setUsuarioId(pedido.getUsuarioId());
         dto.setNombreJuego(pedido.getNombreJuego());
         dto.setPrecio(pedido.getPrecio());

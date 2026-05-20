@@ -11,6 +11,7 @@ public class ResenaMapper {
     public ResenaDTO toDTO(Resena resena, UsuarioDTO usuario) {
         ResenaDTO dto = new ResenaDTO();
 
+        dto.setId(resena.getId());
         dto.setUsuarioId(resena.getUsuarioId());
         dto.setNombreJuego(resena.getNombreJuego());
         dto.setComentario(resena.getComentario());

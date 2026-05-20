@@ -1,4 +1,4 @@
-package cl.duoc.pagos.dto;
+package cl.duoc.carrito.dto;
 
 import java.time.LocalDateTime;
 

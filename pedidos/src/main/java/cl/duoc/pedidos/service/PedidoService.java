@@ -32,8 +32,16 @@ public class PedidoService {
         return pedidoRepository.findAll();
     }
 
+    public List<PedidoDTO> findAllConDetalle() {
+        return toDTOs(findAll());
+    }
+
     public Optional<Pedido> findById(Long id){
         return pedidoRepository.findById(id);
+    }
+
+    public Optional<PedidoDTO> findByIdConDetalle(Long id) {
+        return findById(id).map(this::toDTO);
     }
 
     @Transactional
@@ -41,6 +49,11 @@ public class PedidoService {
         validarUsuario(p.getUsuarioId());
 
         return pedidoRepository.save(p);
+    }
+
+    @Transactional
+    public PedidoDTO saveConDetalle(Pedido p) {
+        return toDTO(save(p));
     }
 
     @Transactional
@@ -59,6 +72,11 @@ public class PedidoService {
     }
 
     @Transactional
+    public Optional<PedidoDTO> updateConDetalle(Long id, Pedido pedido) {
+        return update(id, pedido).map(this::toDTO);
+    }
+
+    @Transactional
     public boolean delete(Long id){
         if (!pedidoRepository.existsById(id)) {
             return false;
@@ -69,24 +87,31 @@ public class PedidoService {
     }
 
     public List<PedidoDTO> findPedidosConUsuario(){
-        List<Pedido> pedidos = pedidoRepository.findAll();
-
-        return pedidos.stream().map(p -> {
-            UsuarioDTO usuario = obtenerUsuario(p.getUsuarioId());
-            return pedidoMapper.toDTO(p, usuario);
-        }).toList();
+        return findAllConDetalle();
     }
 
     public List<Pedido> findByUsuario(Long usuarioId){
         return pedidoRepository.findByUsuarioId(usuarioId);
     }
 
+    public List<PedidoDTO> findByUsuarioConDetalle(Long usuarioId) {
+        return toDTOs(findByUsuario(usuarioId));
+    }
+
     public List<Pedido> findByFechaPedidoBetween(LocalDate desde, LocalDate hasta){
         return pedidoRepository.findByFechaPedidoBetween(desde, hasta);
     }
 
+    public List<PedidoDTO> findByFechaPedidoBetweenConDetalle(LocalDate desde, LocalDate hasta) {
+        return toDTOs(findByFechaPedidoBetween(desde, hasta));
+    }
+
     public List<Pedido> findByPrecioBetween(Double minimo, Double maximo){
         return pedidoRepository.findByPrecioBetween(minimo, maximo);
+    }
+
+    public List<PedidoDTO> findByPrecioBetweenConDetalle(Double minimo, Double maximo) {
+        return toDTOs(findByPrecioBetween(minimo, maximo));
     }
 
     private void validarUsuario(Long usuarioId) {
@@ -101,5 +126,16 @@ public class PedidoService {
         } catch (FeignException exception) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo consultar el microservicio usuarios");
         }
+    }
+
+    private PedidoDTO toDTO(Pedido pedido) {
+        UsuarioDTO usuario = obtenerUsuario(pedido.getUsuarioId());
+        return pedidoMapper.toDTO(pedido, usuario);
+    }
+
+    private List<PedidoDTO> toDTOs(List<Pedido> pedidos) {
+        return pedidos.stream()
+                .map(this::toDTO)
+                .toList();
     }
 }

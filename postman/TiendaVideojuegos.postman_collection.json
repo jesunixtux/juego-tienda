@@ -1,0 +1,146 @@
+{
+  "info": {
+    "name": "Tienda Videojuegos - Microservicios",
+    "description": "Coleccion basica para probar los endpoints principales a traves del API Gateway.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "Videojuegos - listar",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/videojuegos"
+      }
+    },
+    {
+      "name": "Videojuegos - crear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Hades\",\n  \"categoria\": \"Roguelike\",\n  \"precio\": 14990,\n  \"plataforma\": \"PC\"\n}"
+        },
+        "url": "{{baseUrl}}/videojuegos"
+      }
+    },
+    {
+      "name": "Usuarios - listar",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/usuarios"
+      }
+    },
+    {
+      "name": "Auth - login demo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"jesus@tiendajuegos.cl\",\n  \"password\": \"cliente123\"\n}"
+        },
+        "url": "{{baseUrl}}/auth/login"
+      }
+    },
+    {
+      "name": "Carrito - usuario 2",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/carrito/usuario/2"
+      }
+    },
+    {
+      "name": "Carrito - resumen usuario 2",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/carrito/usuario/2/resumen"
+      }
+    },
+    {
+      "name": "Carrito - agregar item",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"usuarioId\": 2,\n  \"videojuegoId\": 1,\n  \"cantidad\": 1\n}"
+        },
+        "url": "{{baseUrl}}/carrito"
+      }
+    },
+    {
+      "name": "Pagos - listar",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/pagos"
+      }
+    },
+    {
+      "name": "Pedidos - listar con usuario",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/pedidos"
+      }
+    },
+    {
+      "name": "Resenas - listar con usuario",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/resenas"
+      }
+    },
+    {
+      "name": "Inventario - listar con videojuego",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/inventario"
+      }
+    },
+    {
+      "name": "Inventario - bajo stock",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/inventario/bajo-stock"
+      }
+    },
+    {
+      "name": "Errores - validacion videojuego",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"\",\n  \"categoria\": \"\",\n  \"precio\": -1,\n  \"plataforma\": \"\"\n}"
+        },
+        "url": "{{baseUrl}}/videojuegos"
+      }
+    }
+  ]
+}
