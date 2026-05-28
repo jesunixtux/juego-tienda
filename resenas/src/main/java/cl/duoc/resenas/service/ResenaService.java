@@ -3,14 +3,14 @@ package cl.duoc.resenas.service;
 import cl.duoc.resenas.client.UsuarioFeign;
 import cl.duoc.resenas.dto.ResenaDTO;
 import cl.duoc.resenas.dto.UsuarioDTO;
+import cl.duoc.resenas.exception.ExternalServiceException;
+import cl.duoc.resenas.exception.ResourceNotFoundException;
 import cl.duoc.resenas.mapper.ResenaMapper;
 import cl.duoc.resenas.model.Resena;
 import cl.duoc.resenas.repository.ResenaRepository;
 import feign.FeignException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -123,9 +123,9 @@ public class ResenaService {
         try {
             return usuarioFeign.obtenerUsuario(usuarioId);
         } catch (FeignException.NotFound exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+            throw new ResourceNotFoundException("Usuario no encontrado");
         } catch (FeignException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo consultar el microservicio usuarios");
+            throw new ExternalServiceException("No se pudo consultar el microservicio usuarios");
         }
     }
 

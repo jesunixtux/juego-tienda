@@ -29,6 +29,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ErrorResponse> handleApi(ApiException exception, HttpServletRequest request) {
+        HttpStatus status = exception.getStatus();
+        LOGGER.warn("Handled API error status={} path={} message={}", status.value(), request.getRequestURI(), exception.getMessage());
+        return ResponseEntity.status(status).body(buildResponse(status, exception.getMessage(), request, null));
+    }
+
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException exception, HttpServletRequest request) {
         HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());

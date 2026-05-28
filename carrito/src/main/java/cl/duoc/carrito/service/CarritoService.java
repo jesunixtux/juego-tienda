@@ -11,13 +11,13 @@ import cl.duoc.carrito.dto.ResenaResponse;
 import cl.duoc.carrito.dto.ResumenCarritoResponse;
 import cl.duoc.carrito.dto.UsuarioResponse;
 import cl.duoc.carrito.dto.VideoJuegoResponse;
+import cl.duoc.carrito.exception.ExternalServiceException;
+import cl.duoc.carrito.exception.ResourceNotFoundException;
 import cl.duoc.carrito.model.ItemCarrito;
 import cl.duoc.carrito.repository.ItemCarritoRepository;
 import feign.FeignException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Comparator;
 import java.util.List;
@@ -136,15 +136,15 @@ public class CarritoService {
         try {
             return videoJuegoClient.buscarPorId(videojuegoId);
         } catch (FeignException.NotFound exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Videojuego no encontrado");
+            throw new ResourceNotFoundException("Videojuego no encontrado");
         } catch (FeignException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo consultar el microservicio videojuegos");
+            throw new ExternalServiceException("No se pudo consultar el microservicio videojuegos");
         }
     }
 
     private Integer obtenerPrecio(VideoJuegoResponse videoJuego) {
         if (videoJuego.precio() == null || videoJuego.precio() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "El videojuego no tiene un precio valido");
+            throw new ExternalServiceException("El videojuego no tiene un precio valido");
         }
 
         return videoJuego.precio();

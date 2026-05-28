@@ -19,6 +19,13 @@
       }
     },
     {
+      "name": "Videojuegos - buscar por precio",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/videojuegos/buscar?precioMin=10000&precioMax=30000"
+      }
+    },
+    {
       "name": "Videojuegos - crear",
       "request": {
         "method": "POST",

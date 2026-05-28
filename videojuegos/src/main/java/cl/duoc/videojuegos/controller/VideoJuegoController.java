@@ -74,8 +74,16 @@ public class VideoJuegoController {
     public ResponseEntity<List<VideoJuego>> buscar(
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) String categoria,
-            @RequestParam(required = false) String plataforma) {
-        LOGGER.info("Buscando videojuegos nombre={} categoria={} plataforma={}", nombre, categoria, plataforma);
+            @RequestParam(required = false) String plataforma,
+            @RequestParam(required = false) Integer precioMin,
+            @RequestParam(required = false) Integer precioMax) {
+        LOGGER.info(
+                "Buscando videojuegos nombre={} categoria={} plataforma={} precioMin={} precioMax={}",
+                nombre,
+                categoria,
+                plataforma,
+                precioMin,
+                precioMax);
         if (nombre != null && !nombre.isBlank()) {
             return ResponseEntity.ok(videoJuegoService.buscarPorNombre(nombre));
         }
@@ -86,6 +94,10 @@ public class VideoJuegoController {
 
         if (plataforma != null && !plataforma.isBlank()) {
             return ResponseEntity.ok(videoJuegoService.buscarPorPlataforma(plataforma));
+        }
+
+        if (precioMin != null || precioMax != null) {
+            return ResponseEntity.ok(videoJuegoService.buscarPorPrecio(precioMin, precioMax));
         }
 
         return ResponseEntity.ok(videoJuegoService.listar());

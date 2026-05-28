@@ -15,4 +15,10 @@ public interface VideoJuegoRepository extends JpaRepository <VideoJuego,Long>{
 
     List<VideoJuego> findByPlataformaIgnoreCase(String plataforma);
 
+    List<VideoJuego> findByPrecioBetween(Integer precioMin, Integer precioMax);
+
+    List<VideoJuego> findByPrecioGreaterThanEqual(Integer precioMin);
+
+    List<VideoJuego> findByPrecioLessThanEqual(Integer precioMax);
+
 }

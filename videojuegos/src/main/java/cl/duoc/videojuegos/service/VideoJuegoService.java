@@ -69,4 +69,16 @@ public class VideoJuegoService {
     public List<VideoJuego> buscarPorPlataforma(String plataforma) {
         return videoJuegoRepository.findByPlataformaIgnoreCase(plataforma);
     }
+
+    public List<VideoJuego> buscarPorPrecio(Integer precioMin, Integer precioMax) {
+        if (precioMin != null && precioMax != null) {
+            return videoJuegoRepository.findByPrecioBetween(precioMin, precioMax);
+        }
+
+        if (precioMin != null) {
+            return videoJuegoRepository.findByPrecioGreaterThanEqual(precioMin);
+        }
+
+        return videoJuegoRepository.findByPrecioLessThanEqual(precioMax);
+    }
 }

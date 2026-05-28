@@ -50,10 +50,13 @@ echo
 run_request "Eureka registra aplicaciones" "200" "applications" "$EUREKA_URL/eureka/apps"
 run_request "Config Server entrega videojuegos/default" "200" "videojuegos" "$CONFIG_URL/videojuegos/default"
 run_request "Videojuegos lista catalogo" "200" "Cyberpunk 2077" "$BASE_URL/videojuegos"
+run_request "Videojuegos incluye catalogo realista nuevo" "200" "Dead Cells" "$BASE_URL/videojuegos"
+run_request "Videojuegos busca por rango de precio" "200" "Dead Cells" "$BASE_URL/videojuegos/buscar?precioMin=10000&precioMax=16000"
 run_request "Usuarios lista cuentas demo" "200" "jesus@tiendajuegos.cl" "$BASE_URL/usuarios"
+run_request "Usuarios incluye clientes realistas nuevos" "200" "catalina@tiendajuegos.cl" "$BASE_URL/usuarios"
 run_request "Auth lista credenciales" "200" "jesus@tiendajuegos.cl" "$BASE_URL/auth/credenciales"
 
-run_request "Login cliente demo" "200" "\"autenticado\":true" \
+run_request "Login cliente demo" "200" "\"nombreUsuario\"" \
   -X POST "$BASE_URL/auth/login" \
   -H "Content-Type: application/json" \
   -d '{"correo":"jesus@tiendajuegos.cl","password":"cliente123"}'
@@ -68,8 +71,11 @@ run_request "Login fallido controlado" "401" "Credenciales invalidas" \
   -H "Content-Type: application/json" \
   -d '{"correo":"jesus@tiendajuegos.cl","password":"incorrecta"}'
 
+run_request "Carrito muestra nombreUsuario" "200" "nombreUsuario" "$BASE_URL/carrito/usuario/2"
 run_request "Carrito muestra nombreVideojuego" "200" "nombreVideojuego" "$BASE_URL/carrito/usuario/2"
+run_request "Carrito incluye campo resena" "200" "resena" "$BASE_URL/carrito/usuario/2"
 run_request "Resumen carrito muestra total" "200" "\"total\"" "$BASE_URL/carrito/usuario/2/resumen"
+run_request "Pagos muestra nombreUsuario" "200" "nombreUsuario" "$BASE_URL/pagos"
 run_request "Pagos lista pagos" "200" "APROBADO" "$BASE_URL/pagos"
 run_request "Pedidos muestra nombreUsuario" "200" "nombreUsuario" "$BASE_URL/pedidos"
 run_request "Resenas muestra nombreUsuario" "200" "nombreUsuario" "$BASE_URL/resenas"

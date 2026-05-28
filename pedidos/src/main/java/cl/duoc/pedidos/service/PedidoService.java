@@ -3,14 +3,14 @@ package cl.duoc.pedidos.service;
 import cl.duoc.pedidos.client.UsuarioFeign;
 import cl.duoc.pedidos.dto.PedidoDTO;
 import cl.duoc.pedidos.dto.UsuarioDTO;
+import cl.duoc.pedidos.exception.ExternalServiceException;
+import cl.duoc.pedidos.exception.ResourceNotFoundException;
 import cl.duoc.pedidos.mapper.PedidoMapper;
 import cl.duoc.pedidos.model.Pedido;
 import cl.duoc.pedidos.repository.PedidoRepository;
 import feign.FeignException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -122,9 +122,9 @@ public class PedidoService {
         try {
             return usuarioFeign.obtenerUsuario(usuarioId);
         } catch (FeignException.NotFound exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+            throw new ResourceNotFoundException("Usuario no encontrado");
         } catch (FeignException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo consultar el microservicio usuarios");
+            throw new ExternalServiceException("No se pudo consultar el microservicio usuarios");
         }
     }
 

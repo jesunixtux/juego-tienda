@@ -64,6 +64,7 @@ config-microservicios/*.properties
 - Spring Validation
 - Flyway
 - MySQL
+- H2 para pruebas automatizadas
 - Lombok
 - Maven Wrapper
 
@@ -297,6 +298,9 @@ Campos relevantes:
 | `GET` | `/videojuegos/buscar?nombre=...` | Busca por nombre. |
 | `GET` | `/videojuegos/buscar?categoria=...` | Busca por categoria. |
 | `GET` | `/videojuegos/buscar?plataforma=...` | Busca por plataforma. |
+| `GET` | `/videojuegos/buscar?precioMin=10000&precioMax=30000` | Busca por rango de precio. |
+| `GET` | `/videojuegos/buscar?precioMin=30000` | Busca videojuegos con precio mayor o igual al minimo. |
+| `GET` | `/videojuegos/buscar?precioMax=20000` | Busca videojuegos con precio menor o igual al maximo. |
 
 ### Ejemplo de creacion
 
@@ -406,11 +410,12 @@ Respuesta esperada:
 
 ```json
 {
-  "usuarioId": 5,
+  "nombreUsuario": "Juan Perez",
   "correo": "juan@tiendajuegos.cl",
   "rol": "CLIENTE",
   "mensaje": "Login exitoso",
-  "autenticado": true
+  "autenticado": true,
+  "usuarioId": 5
 }
 ```
 
@@ -418,22 +423,28 @@ Nota: este proyecto no genera JWT ni maneja sesiones. El login solo valida crede
 
 ## Microservicio Carrito
 
-Gestiona los productos agregados al carrito por usuario. Las respuestas muestran el ID del videojuego y tambien su nombre.
+Gestiona los productos agregados al carrito por usuario. Las respuestas muestran primero datos legibles como `nombreUsuario`, `nombreVideojuego` y la `resena` del mismo usuario si existe para ese juego. Los IDs quedan al final como referencia tecnica.
 
-Este servicio se comunica con `videojuegos` usando OpenFeign para validar que el videojuego exista y obtener su precio.
+Este servicio se comunica con:
+
+- `videojuegos`, para validar que el videojuego exista y obtener su precio.
+- `usuarios`, para mostrar el nombre del usuario.
+- `resenas`, para mostrar la resena del mismo usuario si ya comento ese juego.
 
 ### Modelo principal
 
 Campos relevantes:
 
-- `id`
-- `usuarioId`
-- `videojuegoId`
+- `nombreUsuario`
 - `nombreVideojuego`
+- `resena`
 - `cantidad`
 - `precioUnitario`
 - `subtotal`
 - `fechaAgregado`
+- `id`
+- `usuarioId`
+- `videojuegoId`
 
 ### Endpoints
 
@@ -471,25 +482,27 @@ Si el item ya existe para ese usuario y videojuego, el sistema suma la cantidad.
 
 Gestiona pagos de usuarios.
 
-Este servicio se comunica con `carrito` usando OpenFeign:
+Este servicio se comunica con `carrito` y `usuarios` usando OpenFeign:
 
 - Consulta el resumen del carrito.
 - Valida que tenga total mayor a 0.
 - Crea un pago con estado `APROBADO`.
 - Genera un codigo de transaccion.
 - Vacia el carrito del usuario.
+- Muestra `nombreUsuario` en las respuestas.
 
 ### Modelo principal
 
 Campos relevantes:
 
-- `id`
-- `usuarioId`
+- `nombreUsuario`
 - `monto`
 - `metodoPago`
 - `estado`
 - `codigoTransaccion`
 - `fechaPago`
+- `id`
+- `usuarioId`
 
 ### Endpoints
 
@@ -611,7 +624,7 @@ La puntuacion debe estar entre `1` y `5`.
 
 ## Microservicio Inventario
 
-Gestiona stock de videojuegos. Las respuestas muestran el ID del videojuego y tambien su nombre.
+Gestiona stock de videojuegos. Las respuestas muestran primero `nombreVideojuego` y datos de stock; los IDs quedan al final como referencia tecnica.
 
 Este servicio se comunica con `videojuegos` usando OpenFeign para validar que el videojuego exista.
 
@@ -619,12 +632,12 @@ Este servicio se comunica con `videojuegos` usando OpenFeign para validar que el
 
 Campos relevantes:
 
-- `id`
-- `videojuegoId`
 - `nombreVideojuego`
 - `stock`
 - `stockMinimo`
 - `fechaActualizacion`
+- `id`
+- `videojuegoId`
 
 ### Endpoints
 
@@ -674,7 +687,7 @@ Si se intenta hacer una salida mayor al stock disponible, el servicio responde c
 El proyecto carga datos iniciales con Flyway:
 
 - Usuarios de ejemplo, incluyendo `admin@tiendajuegos.cl`.
-- Videojuegos de ejemplo.
+- Catalogo de videojuegos con datos mas realistas, distintos rangos de precio y varias plataformas.
 - Inventario inicial.
 - Carrito inicial para usuario `2`.
 - Pagos iniciales.
@@ -695,6 +708,16 @@ Estas credenciales son solo para pruebas locales y datos semilla del proyecto. N
 | Diego Fernandez | `diego@tiendajuegos.cl` | `CLIENTE` | `diego123` |
 | Valentina Soto | `valentina@tiendajuegos.cl` | `CLIENTE` | `valentina123` |
 | Benjamin Herrera | `benjamin@tiendajuegos.cl` | `CLIENTE` | `benjamin123` |
+| Ignacio Vargas | `ignacio@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Fernanda Castro | `fernanda@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Tomas Navarro | `tomas@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Antonia Reyes | `antonia@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Catalina Munoz | `catalina@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Joaquin Silva | `joaquin@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Martina Sepulveda | `martina@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Felipe Araya | `felipe@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Isidora Paredes | `isidora@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
+| Cristobal Vega | `cristobal@tiendajuegos.cl` | `CLIENTE` | `cliente123` |
 
 Carritos demo:
 
@@ -707,6 +730,28 @@ Carritos demo:
 | `6` | Forza Horizon 5, Celeste |
 | `7` | Portal 2, Terraria |
 | `8` | Resident Evil 4 Remake, The Witcher 3 Wild Hunt |
+| `9` | Sea of Stars, Dead Cells |
+| `10` | Dave the Diver, It Takes Two |
+| `11` | Persona 5 Royal |
+| `12` | No Mans Sky |
+| `13` | DOOM Eternal |
+| `14` | A Plague Tale Requiem |
+| `15` | Cities Skylines II |
+| `16` | Alan Wake 2 |
+| `17` | Gran Turismo 7 |
+| `18` | Metroid Dread |
+
+## Pruebas Automatizadas
+
+Cada microservicio tiene pruebas de contexto con `mvn test`. Los servicios con JPA usan H2 en memoria durante pruebas, por lo que estas pruebas no necesitan MySQL, Eureka ni Config Server levantados.
+
+Para correr todas las pruebas desde la raiz del proyecto:
+
+```bash
+for module in eureka config-server api-gateway videojuegos usuarios authentication carrito pagos pedidos resenas inventario; do
+  (cd "$module" && bash ./mvnw test) || exit 1
+done
+```
 
 ## Prueba Definitiva con curl
 
@@ -723,7 +768,7 @@ El script revisa:
 - Gateway activo.
 - Login con credenciales demo.
 - Videojuegos, usuarios, pagos, pedidos, resenas, inventario y carrito.
-- Campos enriquecidos como `nombreVideojuego`, `nombreUsuario` y `correoUsuario`.
+- Campos enriquecidos como `nombreVideojuego`, `nombreUsuario`, `correoUsuario` y `resena`.
 - Manejo de errores con `validationErrors`.
 
 ### Comandos de verificacion general
@@ -800,6 +845,12 @@ Buscar videojuegos por categoria:
 
 ```bash
 curl -i "http://localhost:8080/videojuegos/buscar?categoria=RPG"
+```
+
+Buscar videojuegos por precio:
+
+```bash
+curl -i "http://localhost:8080/videojuegos/buscar?precioMin=10000&precioMax=30000"
 ```
 
 Listar usuarios:
@@ -1003,8 +1054,10 @@ export INVENTARIO_PORT=8088
 - Las passwords se guardan encriptadas con BCrypt.
 - Los videojuegos deben tener precio mayor a 0.
 - El carrito valida que el videojuego exista antes de agregarlo.
+- El carrito muestra el nombre del usuario, el nombre del videojuego y, si existe, la resena previa del usuario sobre ese juego.
 - El pago solo se puede crear si el carrito tiene total mayor a 0.
 - Al crear un pago se vacia el carrito.
+- Los pagos muestran el nombre del usuario junto a los datos del pago.
 - Pedidos y resenas validan que el usuario exista.
 - Inventario valida que el videojuego exista.
 - No se puede disminuir stock por debajo de 0.
@@ -1016,7 +1069,8 @@ Cada microservicio de negocio tiene un `GlobalExceptionHandler` con `@RestContro
 Los errores manejados incluyen:
 
 - Validaciones de `@Valid`, por ejemplo campos obligatorios o formatos invalidos.
-- Excepciones `ResponseStatusException`, por ejemplo conflictos, no autorizados o fallas al consultar otro microservicio.
+- Excepciones personalizadas basadas en `ApiException`, por ejemplo `ConflictException`, `ResourceNotFoundException`, `ExternalServiceException`, `UnauthorizedException` y `ForbiddenException`.
+- `ResponseStatusException` sigue soportado por compatibilidad en el handler global.
 - Errores internos no controlados, devueltos como HTTP 500.
 
 Ejemplo de respuesta de error:
@@ -1093,7 +1147,8 @@ Por eso es recomendable ejecutarlo desde la carpeta `config-server`.
 Revisar que el servicio destino este levantado y registrado en Eureka. Por ejemplo:
 
 - `carrito` necesita `videojuegos`.
-- `pagos` necesita `carrito`.
+- `carrito` tambien necesita `usuarios` y `resenas` para enriquecer sus respuestas.
+- `pagos` necesita `carrito` y `usuarios`.
 - `authentication` necesita `usuarios`.
 - `pedidos` necesita `usuarios`.
 - `resenas` necesita `usuarios`.
@@ -1104,8 +1159,8 @@ Revisar que el servicio destino este levantado y registrado en Eureka. Por ejemp
 | Servicio | Depende de |
 | --- | --- |
 | `authentication` | `usuarios` |
-| `carrito` | `videojuegos` |
-| `pagos` | `carrito` |
+| `carrito` | `videojuegos`, `usuarios`, `resenas` |
+| `pagos` | `carrito`, `usuarios` |
 | `pedidos` | `usuarios` |
 | `resenas` | `usuarios` |
 | `inventario` | `videojuegos` |

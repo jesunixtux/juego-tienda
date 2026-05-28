@@ -7,13 +7,13 @@ import cl.duoc.pagos.dto.CrearPagoRequest;
 import cl.duoc.pagos.dto.PagoResponse;
 import cl.duoc.pagos.dto.ResumenCarritoResponse;
 import cl.duoc.pagos.dto.UsuarioResponse;
+import cl.duoc.pagos.exception.ConflictException;
+import cl.duoc.pagos.exception.ExternalServiceException;
 import cl.duoc.pagos.model.Pago;
 import cl.duoc.pagos.repository.PagoRepository;
 import feign.FeignException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -100,7 +100,7 @@ public class PagoService {
         try {
             return carritoClient.obtenerResumen(usuarioId);
         } catch (FeignException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo consultar el carrito");
+            throw new ExternalServiceException("No se pudo consultar el carrito");
         }
     }
 
@@ -108,13 +108,13 @@ public class PagoService {
         try {
             carritoClient.vaciarPorUsuario(usuarioId);
         } catch (FeignException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo vaciar el carrito");
+            throw new ExternalServiceException("No se pudo vaciar el carrito");
         }
     }
 
     private void validarCarrito(ResumenCarritoResponse resumen) {
         if (resumen == null || resumen.total() == null || resumen.total() <= 0) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "El carrito no tiene productos para pagar");
+            throw new ConflictException("El carrito no tiene productos para pagar");
         }
     }
 

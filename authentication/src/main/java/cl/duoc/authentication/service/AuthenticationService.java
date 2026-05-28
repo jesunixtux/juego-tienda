@@ -7,14 +7,17 @@ import cl.duoc.authentication.dto.LoginRequest;
 import cl.duoc.authentication.dto.RegistroRequest;
 import cl.duoc.authentication.dto.UsuarioRequest;
 import cl.duoc.authentication.dto.UsuarioResponse;
+import cl.duoc.authentication.exception.ConflictException;
+import cl.duoc.authentication.exception.ExternalServiceException;
+import cl.duoc.authentication.exception.ForbiddenException;
+import cl.duoc.authentication.exception.ResourceNotFoundException;
+import cl.duoc.authentication.exception.UnauthorizedException;
 import cl.duoc.authentication.model.Credencial;
 import cl.duoc.authentication.repository.CredencialRepository;
 import feign.FeignException;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +44,7 @@ public class AuthenticationService {
     @Transactional
     public AuthResponse registrar(RegistroRequest request) {
         if (credencialRepository.existsByCorreoIgnoreCase(request.correo())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe una credencial con ese correo");
+            throw new ConflictException("Ya existe una credencial con ese correo");
         }
 
         UsuarioResponse usuario = crearUsuario(request);
@@ -58,14 +61,14 @@ public class AuthenticationService {
 
     public AuthResponse login(LoginRequest request) {
         Credencial credencial = credencialRepository.findByCorreoIgnoreCase(request.correo())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas"));
+                .orElseThrow(() -> new UnauthorizedException("Credenciales invalidas"));
 
         if (!Boolean.TRUE.equals(credencial.getActivo())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Credencial desactivada");
+            throw new ForbiddenException("Credencial desactivada");
         }
 
         if (!passwordEncoder.matches(request.password(), credencial.getPasswordHash())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas");
+            throw new UnauthorizedException("Credenciales invalidas");
         }
 
         UsuarioResponse usuario = buscarUsuarioPorCorreo(credencial.getCorreo());
@@ -77,7 +80,7 @@ public class AuthenticationService {
         return credencialRepository.findById(id)
                 .map(credencial -> {
                     if (!passwordEncoder.matches(request.passwordActual(), credencial.getPasswordHash())) {
-                        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password actual incorrecta");
+                        throw new UnauthorizedException("Password actual incorrecta");
                     }
 
                     credencial.setPasswordHash(passwordEncoder.encode(request.nuevaPassword()));
@@ -110,9 +113,9 @@ public class AuthenticationService {
 
             return usuarioClient.crear(usuarioRequest);
         } catch (FeignException.Conflict exception) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un usuario con ese correo");
+            throw new ConflictException("Ya existe un usuario con ese correo");
         } catch (FeignException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo crear el usuario");
+            throw new ExternalServiceException("No se pudo crear el usuario");
         }
     }
 
@@ -120,9 +123,9 @@ public class AuthenticationService {
         try {
             return usuarioClient.buscarPorCorreo(correo);
         } catch (FeignException.NotFound exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+            throw new ResourceNotFoundException("Usuario no encontrado");
         } catch (FeignException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo consultar el usuario");
+            throw new ExternalServiceException("No se pudo consultar el usuario");
         }
     }
 

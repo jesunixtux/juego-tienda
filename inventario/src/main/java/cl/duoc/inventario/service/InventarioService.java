@@ -6,13 +6,14 @@ import cl.duoc.inventario.dto.CrearInventarioRequest;
 import cl.duoc.inventario.dto.InventarioResponse;
 import cl.duoc.inventario.dto.MovimientoStockRequest;
 import cl.duoc.inventario.dto.VideoJuegoResponse;
+import cl.duoc.inventario.exception.ConflictException;
+import cl.duoc.inventario.exception.ExternalServiceException;
+import cl.duoc.inventario.exception.ResourceNotFoundException;
 import cl.duoc.inventario.model.Inventario;
 import cl.duoc.inventario.repository.InventarioRepository;
 import feign.FeignException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +71,7 @@ public class InventarioService {
         validarVideojuegoExiste(request.videojuegoId());
 
         if (inventarioRepository.existsByVideojuegoId(request.videojuegoId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe inventario para este videojuego");
+            throw new ConflictException("Ya existe inventario para este videojuego");
         }
 
         Inventario inventario = new Inventario();
@@ -141,7 +142,7 @@ public class InventarioService {
         return inventarioRepository.findByVideojuegoId(videojuegoId)
                 .map(inventario -> {
                     if (inventario.getStock() < request.cantidad()) {
-                        throw new ResponseStatusException(HttpStatus.CONFLICT, "Stock insuficiente");
+                        throw new ConflictException("Stock insuficiente");
                     }
 
                     inventario.setStock(inventario.getStock() - request.cantidad());
@@ -168,9 +169,9 @@ public class InventarioService {
         try {
             videoJuegoClient.buscarPorId(videojuegoId);
         } catch (FeignException.NotFound exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Videojuego no encontrado");
+            throw new ResourceNotFoundException("Videojuego no encontrado");
         } catch (FeignException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo consultar el microservicio videojuegos");
+            throw new ExternalServiceException("No se pudo consultar el microservicio videojuegos");
         }
     }
 
@@ -178,7 +179,7 @@ public class InventarioService {
         inventarioRepository.findByVideojuegoId(videojuegoId)
                 .filter(inventario -> !inventario.getId().equals(inventarioId))
                 .ifPresent(inventario -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe inventario para este videojuego");
+                    throw new ConflictException("Ya existe inventario para este videojuego");
                 });
     }
 
@@ -199,9 +200,9 @@ public class InventarioService {
         try {
             return videoJuegoClient.buscarPorId(videojuegoId);
         } catch (FeignException.NotFound exception) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Videojuego no encontrado");
+            throw new ResourceNotFoundException("Videojuego no encontrado");
         } catch (FeignException exception) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo consultar el microservicio videojuegos");
+            throw new ExternalServiceException("No se pudo consultar el microservicio videojuegos");
         }
     }
 }

@@ -1,10 +1,9 @@
 package cl.duoc.usuarios.service;
 
+import cl.duoc.usuarios.exception.ConflictException;
 import cl.duoc.usuarios.model.Usuario;
 import cl.duoc.usuarios.repository.UsuarioRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +34,7 @@ public class UsuarioService {
 
     public Usuario crear(Usuario usuario) {
         if (usuarioRepository.existsByCorreoIgnoreCase(usuario.getCorreo())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un usuario con ese correo");
+            throw new ConflictException("Ya existe un usuario con ese correo");
         }
 
         if (usuario.getActivo() == null) {
@@ -76,7 +75,7 @@ public class UsuarioService {
         usuarioRepository.findByCorreoIgnoreCase(correo)
                 .filter(usuario -> !usuario.getId().equals(usuarioId))
                 .ifPresent(usuario -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un usuario con ese correo");
+                    throw new ConflictException("Ya existe un usuario con ese correo");
                 });
     }
 }

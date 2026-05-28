@@ -1,0 +1,221 @@
+========================================
+REPORTE DE PRUEBAS PROLONGADAS
+Proyecto: juego-tienda
+Inicio: 2026-05-28 15:09:41
+Java: openjdk version "25.0.3" 2026-04-21 LTS
+Directorio: /Users/jesus/Documents/GitHub/juego-tienda
+========================================
+
+===== Revision de formato git diff --check =====
+OK: Revision de formato git diff --check
+
+===== Ping a MySQL =====
+mysqld is alive
+OK: Ping a MySQL
+
+===== Pruebas mvn test en todos los modulos =====
+[eureka] mvn test
+OK [eureka] mvn test
+[config-server] mvn test
+OK [config-server] mvn test
+[api-gateway] mvn test
+OK [api-gateway] mvn test
+[videojuegos] mvn test
+OK [videojuegos] mvn test
+[usuarios] mvn test
+OK [usuarios] mvn test
+[authentication] mvn test
+OK [authentication] mvn test
+[carrito] mvn test
+OK [carrito] mvn test
+[pagos] mvn test
+OK [pagos] mvn test
+[pedidos] mvn test
+OK [pedidos] mvn test
+[resenas] mvn test
+OK [resenas] mvn test
+[inventario] mvn test
+OK [inventario] mvn test
+OK: Pruebas mvn test en todos los modulos
+
+===== Construccion mvn package -DskipTests en todos los modulos =====
+[eureka] mvn package -DskipTests
+OK [eureka] mvn package -DskipTests
+[config-server] mvn package -DskipTests
+OK [config-server] mvn package -DskipTests
+[api-gateway] mvn package -DskipTests
+OK [api-gateway] mvn package -DskipTests
+[videojuegos] mvn package -DskipTests
+OK [videojuegos] mvn package -DskipTests
+[usuarios] mvn package -DskipTests
+OK [usuarios] mvn package -DskipTests
+[authentication] mvn package -DskipTests
+OK [authentication] mvn package -DskipTests
+[carrito] mvn package -DskipTests
+OK [carrito] mvn package -DskipTests
+[pagos] mvn package -DskipTests
+OK [pagos] mvn package -DskipTests
+[pedidos] mvn package -DskipTests
+OK [pedidos] mvn package -DskipTests
+[resenas] mvn package -DskipTests
+OK [resenas] mvn package -DskipTests
+[inventario] mvn package -DskipTests
+OK [inventario] mvn package -DskipTests
+OK: Construccion mvn package -DskipTests en todos los modulos
+
+===== ARRANQUE DE STACK COMPLETO =====
+Iniciando eureka...
+OK readiness eureka
+Iniciando config-server...
+OK readiness config-server
+Iniciando videojuegos...
+Iniciando usuarios...
+Iniciando authentication...
+Iniciando carrito...
+Iniciando pagos...
+Iniciando pedidos...
+Iniciando resenas...
+Iniciando inventario...
+OK Eureka VIDEOJUEGOS
+OK Eureka USUARIOS
+OK Eureka AUTHENTICATION
+OK Eureka CARRITO
+OK Eureka PAGOS
+OK Eureka PEDIDOS
+OK Eureka RESENAS
+OK Eureka INVENTARIO
+Esperando refresco de registry en clientes internos...
+Iniciando api-gateway...
+OK readiness api-gateway
+Esperando refresco de registry en gateway...
+OK: stack completo listo
+
+===== SCRIPT OFICIAL test-definitivo.sh =====
+Prueba definitiva Tienda Videojuegos
+Gateway: http://localhost:8080
+
+OK   Eureka registra aplicaciones
+OK   Config Server entrega videojuegos/default
+OK   Videojuegos lista catalogo
+OK   Videojuegos incluye catalogo realista nuevo
+OK   Videojuegos busca por rango de precio
+OK   Usuarios lista cuentas demo
+OK   Usuarios incluye clientes realistas nuevos
+OK   Auth lista credenciales
+OK   Login cliente demo
+OK   Login admin demo
+OK   Login fallido controlado
+OK   Carrito muestra nombreUsuario
+OK   Carrito muestra nombreVideojuego
+OK   Carrito incluye campo resena
+OK   Resumen carrito muestra total
+OK   Pagos muestra nombreUsuario
+OK   Pagos lista pagos
+OK   Pedidos muestra nombreUsuario
+OK   Resenas muestra nombreUsuario
+OK   Inventario muestra nombreVideojuego
+OK   Inventario bajo stock responde
+OK   Validacion devuelve errores controlados
+
+Resultado: OK - todas las pruebas pasaron.
+OK: script oficial
+
+===== PRUEBAS PROLONGADAS POR RONDAS =====
+--- Ronda 1/5 ---
+OK   R1 catalogo completo (HTTP 200)
+OK   R1 busqueda precio rango (HTTP 200)
+OK   R1 busqueda precio minimo (HTTP 200)
+OK   R1 busqueda precio maximo (HTTP 200)
+OK   R1 usuarios nuevos (HTTP 200)
+OK   R1 login cliente nuevo (HTTP 200)
+OK   R1 login invalido (HTTP 401)
+OK   R1 carrito usuario 9 (HTTP 200)
+OK   R1 pagos (HTTP 200)
+OK   R1 pedidos (HTTP 200)
+OK   R1 resenas (HTTP 200)
+OK   R1 inventario (HTTP 200)
+OK   R1 validacion videojuego (HTTP 400)
+--- Ronda 2/5 ---
+OK   R2 catalogo completo (HTTP 200)
+OK   R2 busqueda precio rango (HTTP 200)
+OK   R2 busqueda precio minimo (HTTP 200)
+OK   R2 busqueda precio maximo (HTTP 200)
+OK   R2 usuarios nuevos (HTTP 200)
+OK   R2 login cliente nuevo (HTTP 200)
+OK   R2 login invalido (HTTP 401)
+OK   R2 carrito usuario 9 (HTTP 200)
+OK   R2 pagos (HTTP 200)
+OK   R2 pedidos (HTTP 200)
+OK   R2 resenas (HTTP 200)
+OK   R2 inventario (HTTP 200)
+OK   R2 validacion videojuego (HTTP 400)
+--- Ronda 3/5 ---
+OK   R3 catalogo completo (HTTP 200)
+OK   R3 busqueda precio rango (HTTP 200)
+OK   R3 busqueda precio minimo (HTTP 200)
+OK   R3 busqueda precio maximo (HTTP 200)
+OK   R3 usuarios nuevos (HTTP 200)
+OK   R3 login cliente nuevo (HTTP 200)
+OK   R3 login invalido (HTTP 401)
+OK   R3 carrito usuario 9 (HTTP 200)
+OK   R3 pagos (HTTP 200)
+OK   R3 pedidos (HTTP 200)
+OK   R3 resenas (HTTP 200)
+OK   R3 inventario (HTTP 200)
+OK   R3 validacion videojuego (HTTP 400)
+--- Ronda 4/5 ---
+OK   R4 catalogo completo (HTTP 200)
+OK   R4 busqueda precio rango (HTTP 200)
+OK   R4 busqueda precio minimo (HTTP 200)
+OK   R4 busqueda precio maximo (HTTP 200)
+OK   R4 usuarios nuevos (HTTP 200)
+OK   R4 login cliente nuevo (HTTP 200)
+OK   R4 login invalido (HTTP 401)
+OK   R4 carrito usuario 9 (HTTP 200)
+OK   R4 pagos (HTTP 200)
+OK   R4 pedidos (HTTP 200)
+OK   R4 resenas (HTTP 200)
+OK   R4 inventario (HTTP 200)
+OK   R4 validacion videojuego (HTTP 400)
+--- Ronda 5/5 ---
+OK   R5 catalogo completo (HTTP 200)
+OK   R5 busqueda precio rango (HTTP 200)
+OK   R5 busqueda precio minimo (HTTP 200)
+OK   R5 busqueda precio maximo (HTTP 200)
+OK   R5 usuarios nuevos (HTTP 200)
+OK   R5 login cliente nuevo (HTTP 200)
+OK   R5 login invalido (HTTP 401)
+OK   R5 carrito usuario 9 (HTTP 200)
+OK   R5 pagos (HTTP 200)
+OK   R5 pedidos (HTTP 200)
+OK   R5 resenas (HTTP 200)
+OK   R5 inventario (HTTP 200)
+OK   R5 validacion videojuego (HTTP 400)
+
+===== CONTEOS DE BASE DE DATOS =====
+videojuegos
+50
+usuarios
+18
+credenciales
+18
+items_carrito
+26
+pagos
+19
+pedidos
+25
+resenas
+35
+inventario
+50
+
+========================================
+RESULTADO FINAL: OK - pruebas prolongadas completadas
+Inicio: 2026-05-28 15:09:41
+Fin: 2026-05-28 15:12:14
+Reporte: /Users/jesus/Documents/GitHub/juego-tienda/resultados-pruebas-prolongadas.txt
+Logs temporales: /tmp/juego-tienda-pruebas-prolongadas
+========================================
+
+Reporte guardado en: /Users/jesus/Documents/GitHub/juego-tienda/resultados-pruebas-prolongadas.txt
