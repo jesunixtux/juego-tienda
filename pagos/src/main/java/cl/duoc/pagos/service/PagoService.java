@@ -1,9 +1,12 @@
 package cl.duoc.pagos.service;
 
 import cl.duoc.pagos.client.CarritoClient;
+import cl.duoc.pagos.client.UsuarioClient;
 import cl.duoc.pagos.dto.ActualizarEstadoPagoRequest;
 import cl.duoc.pagos.dto.CrearPagoRequest;
+import cl.duoc.pagos.dto.PagoResponse;
 import cl.duoc.pagos.dto.ResumenCarritoResponse;
+import cl.duoc.pagos.dto.UsuarioResponse;
 import cl.duoc.pagos.model.Pago;
 import cl.duoc.pagos.repository.PagoRepository;
 import feign.FeignException;
@@ -20,26 +23,32 @@ import java.util.UUID;
 public class PagoService {
     private final PagoRepository pagoRepository;
     private final CarritoClient carritoClient;
+    private final UsuarioClient usuarioClient;
 
-    public PagoService(PagoRepository pagoRepository, CarritoClient carritoClient) {
+    public PagoService(PagoRepository pagoRepository, CarritoClient carritoClient, UsuarioClient usuarioClient) {
         this.pagoRepository = pagoRepository;
         this.carritoClient = carritoClient;
+        this.usuarioClient = usuarioClient;
     }
 
-    public List<Pago> listar() {
-        return pagoRepository.findAll();
+    public List<PagoResponse> listar() {
+        return pagoRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public List<Pago> listarPorUsuario(Long usuarioId) {
-        return pagoRepository.findByUsuarioId(usuarioId);
+    public List<PagoResponse> listarPorUsuario(Long usuarioId) {
+        return pagoRepository.findByUsuarioId(usuarioId).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Optional<Pago> buscarPorId(Long id) {
-        return pagoRepository.findById(id);
+    public Optional<PagoResponse> buscarPorId(Long id) {
+        return pagoRepository.findById(id).map(this::toResponse);
     }
 
     @Transactional
-    public Pago crear(CrearPagoRequest request) {
+    public PagoResponse crear(CrearPagoRequest request) {
         ResumenCarritoResponse resumen = obtenerResumenCarrito(request.usuarioId());
         validarCarrito(resumen);
 
@@ -53,16 +62,17 @@ public class PagoService {
         Pago pagoGuardado = pagoRepository.save(pago);
         vaciarCarrito(request.usuarioId());
 
-        return pagoGuardado;
+        return toResponse(pagoGuardado, resumen.nombreUsuario());
     }
 
     @Transactional
-    public Optional<Pago> actualizarEstado(Long id, ActualizarEstadoPagoRequest request) {
+    public Optional<PagoResponse> actualizarEstado(Long id, ActualizarEstadoPagoRequest request) {
         return pagoRepository.findById(id)
                 .map(pago -> {
                     pago.setEstado(request.estado());
                     return pagoRepository.save(pago);
-                });
+                })
+                .map(this::toResponse);
     }
 
     @Transactional
@@ -116,5 +126,49 @@ public class PagoService {
         } while (pagoRepository.existsByCodigoTransaccion(codigo));
 
         return codigo;
+    }
+
+    private PagoResponse toResponse(Pago pago) {
+        return toResponse(pago, obtenerNombreUsuario(pago.getUsuarioId()));
+    }
+
+    private PagoResponse toResponse(Pago pago, String nombreUsuario) {
+        return new PagoResponse(
+                nombreUsuario,
+                pago.getMonto(),
+                pago.getMetodoPago(),
+                pago.getEstado(),
+                pago.getCodigoTransaccion(),
+                pago.getFechaPago(),
+                pago.getId(),
+                pago.getUsuarioId()
+        );
+    }
+
+    private String obtenerNombreUsuario(Long usuarioId) {
+        try {
+            UsuarioResponse usuario = usuarioClient.buscarPorId(usuarioId);
+            return formatearNombreUsuario(usuario);
+        } catch (FeignException.NotFound exception) {
+            return "Usuario no encontrado";
+        } catch (FeignException exception) {
+            return "Usuario no disponible";
+        }
+    }
+
+    private String formatearNombreUsuario(UsuarioResponse usuario) {
+        String nombre = usuario.nombre() == null ? "" : usuario.nombre().trim();
+        String apellido = usuario.apellido() == null ? "" : usuario.apellido().trim();
+        String nombreCompleto = (nombre + " " + apellido).trim();
+
+        if (!nombreCompleto.isBlank()) {
+            return nombreCompleto;
+        }
+
+        if (usuario.correo() != null && !usuario.correo().isBlank()) {
+            return usuario.correo();
+        }
+
+        return "Usuario " + usuario.id();
     }
 }

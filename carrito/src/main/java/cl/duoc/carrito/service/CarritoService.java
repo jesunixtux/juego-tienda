@@ -73,7 +73,7 @@ public class CarritoService {
                 .filter(subtotal -> subtotal != null)
                 .reduce(0, Integer::sum);
 
-        return new ResumenCarritoResponse(usuarioId, nombreUsuario, itemsConVideojuego, total);
+        return new ResumenCarritoResponse(nombreUsuario, itemsConVideojuego, total, usuarioId);
     }
 
     @Transactional
@@ -159,16 +159,16 @@ public class CarritoService {
         ResenaCarritoResponse resena = buscarResenaDelUsuario(resenasUsuario, nombreVideojuego);
 
         return new ItemCarritoResponse(
-                item.getId(),
-                item.getUsuarioId(),
                 nombreUsuario,
-                item.getVideojuegoId(),
                 nombreVideojuego,
                 resena,
                 item.getCantidad(),
                 item.getPrecioUnitario(),
                 item.getSubtotal(),
-                item.getFechaAgregado()
+                item.getFechaAgregado(),
+                item.getId(),
+                item.getUsuarioId(),
+                item.getVideojuegoId()
         );
     }
 

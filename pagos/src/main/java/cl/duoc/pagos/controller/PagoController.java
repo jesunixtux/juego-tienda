@@ -2,7 +2,7 @@ package cl.duoc.pagos.controller;
 
 import cl.duoc.pagos.dto.ActualizarEstadoPagoRequest;
 import cl.duoc.pagos.dto.CrearPagoRequest;
-import cl.duoc.pagos.model.Pago;
+import cl.duoc.pagos.dto.PagoResponse;
 import cl.duoc.pagos.service.PagoService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -32,13 +32,13 @@ public class PagoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Pago>> listar() {
+    public ResponseEntity<List<PagoResponse>> listar() {
         LOGGER.info("Listando pagos");
         return ResponseEntity.ok(pagoService.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pago> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<PagoResponse> buscarPorId(@PathVariable Long id) {
         LOGGER.info("Buscando pago id={}", id);
         return pagoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
@@ -46,20 +46,20 @@ public class PagoController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<Pago>> listarPorUsuario(@PathVariable Long usuarioId) {
+    public ResponseEntity<List<PagoResponse>> listarPorUsuario(@PathVariable Long usuarioId) {
         LOGGER.info("Listando pagos usuarioId={}", usuarioId);
         return ResponseEntity.ok(pagoService.listarPorUsuario(usuarioId));
     }
 
     @PostMapping
-    public ResponseEntity<Pago> crear(@Valid @RequestBody CrearPagoRequest request) {
+    public ResponseEntity<PagoResponse> crear(@Valid @RequestBody CrearPagoRequest request) {
         LOGGER.info("Creando pago usuarioId={} metodo={}", request.usuarioId(), request.metodoPago());
-        Pago pago = pagoService.crear(request);
+        PagoResponse pago = pagoService.crear(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(pago);
     }
 
     @PutMapping("/{id}/estado")
-    public ResponseEntity<Pago> actualizarEstado(
+    public ResponseEntity<PagoResponse> actualizarEstado(
             @PathVariable Long id,
             @Valid @RequestBody ActualizarEstadoPagoRequest request) {
         LOGGER.info("Actualizando estado pago id={} estado={}", id, request.estado());

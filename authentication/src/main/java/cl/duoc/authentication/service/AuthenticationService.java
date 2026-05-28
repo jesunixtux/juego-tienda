@@ -53,7 +53,7 @@ public class AuthenticationService {
         credencial.setActivo(true);
         credencialRepository.save(credencial);
 
-        return new AuthResponse(usuario.id(), usuario.correo(), usuario.rol(), "Registro exitoso", true);
+        return new AuthResponse(formatearNombreUsuario(usuario), usuario.correo(), usuario.rol(), "Registro exitoso", true, usuario.id());
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -69,7 +69,7 @@ public class AuthenticationService {
         }
 
         UsuarioResponse usuario = buscarUsuarioPorCorreo(credencial.getCorreo());
-        return new AuthResponse(usuario.id(), usuario.correo(), usuario.rol(), "Login exitoso", true);
+        return new AuthResponse(formatearNombreUsuario(usuario), usuario.correo(), usuario.rol(), "Login exitoso", true, usuario.id());
     }
 
     @Transactional
@@ -124,5 +124,21 @@ public class AuthenticationService {
         } catch (FeignException exception) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "No se pudo consultar el usuario");
         }
+    }
+
+    private String formatearNombreUsuario(UsuarioResponse usuario) {
+        String nombre = usuario.nombre() == null ? "" : usuario.nombre().trim();
+        String apellido = usuario.apellido() == null ? "" : usuario.apellido().trim();
+        String nombreCompleto = (nombre + " " + apellido).trim();
+
+        if (!nombreCompleto.isBlank()) {
+            return nombreCompleto;
+        }
+
+        if (usuario.correo() != null && !usuario.correo().isBlank()) {
+            return usuario.correo();
+        }
+
+        return "Usuario " + usuario.id();
     }
 }

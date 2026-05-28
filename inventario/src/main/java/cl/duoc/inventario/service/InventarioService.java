@@ -186,12 +186,12 @@ public class InventarioService {
         VideoJuegoResponse videoJuego = obtenerVideojuego(inventario.getVideojuegoId());
 
         return new InventarioResponse(
-                inventario.getId(),
-                inventario.getVideojuegoId(),
                 videoJuego.nombre(),
                 inventario.getStock(),
                 inventario.getStockMinimo(),
-                inventario.getFechaActualizacion()
+                inventario.getFechaActualizacion(),
+                inventario.getId(),
+                inventario.getVideojuegoId()
         );
     }
 

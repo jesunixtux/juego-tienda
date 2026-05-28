@@ -1,11 +1,14 @@
 package cl.duoc.carrito.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.List;
 
+@JsonPropertyOrder({"nombreUsuario", "items", "total", "usuarioId"})
 public record ResumenCarritoResponse(
-        Long usuarioId,
         String nombreUsuario,
         List<ItemCarritoResponse> items,
-        Integer total
+        Integer total,
+        Long usuarioId
 ) {
 }

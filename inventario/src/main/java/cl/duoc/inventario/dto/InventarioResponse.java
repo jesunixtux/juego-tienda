@@ -1,13 +1,16 @@
 package cl.duoc.inventario.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.time.LocalDateTime;
 
+@JsonPropertyOrder({"nombreVideojuego", "stock", "stockMinimo", "fechaActualizacion", "id", "videojuegoId"})
 public record InventarioResponse(
-        Long id,
-        Long videojuegoId,
         String nombreVideojuego,
         Integer stock,
         Integer stockMinimo,
-        LocalDateTime fechaActualizacion
+        LocalDateTime fechaActualizacion,
+        Long id,
+        Long videojuegoId
 ) {
 }
