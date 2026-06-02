@@ -88,6 +88,8 @@ Antes de ejecutar el proyecto necesitas:
 - Usuario de base de datos `root`.
 - Password vacia para MySQL, o configurar otra usando variables de entorno.
 
+En macOS/Linux puedes ejecutar el wrapper con `./mvnw`. En Windows PowerShell usa `.\mvnw.cmd` en el mismo lugar.
+
 Por defecto los microservicios usan:
 
 ```properties
@@ -128,7 +130,7 @@ Es importante levantar los servicios en este orden.
 
 ```bash
 cd eureka
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 Eureka quedara disponible en:
@@ -141,7 +143,7 @@ http://localhost:8761
 
 ```bash
 cd config-server
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 Config Server quedara disponible en:
@@ -163,49 +165,49 @@ Abrir una terminal por cada microservicio:
 
 ```bash
 cd videojuegos
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ```bash
 cd usuarios
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ```bash
 cd authentication
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ```bash
 cd carrito
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ```bash
 cd pagos
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ```bash
 cd pedidos
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ```bash
 cd resenas
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ```bash
 cd inventario
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ### 4. Levantar API Gateway
 
 ```bash
 cd api-gateway
-bash ./mvnw spring-boot:run
+./mvnw spring-boot:run
 ```
 
 El gateway quedara disponible en:
@@ -749,8 +751,20 @@ Para correr todas las pruebas desde la raiz del proyecto:
 
 ```bash
 for module in eureka config-server api-gateway videojuegos usuarios authentication carrito pagos pedidos resenas inventario; do
-  (cd "$module" && bash ./mvnw test) || exit 1
+  (cd "$module" && ./mvnw test) || exit 1
 done
+```
+
+En Windows PowerShell, el equivalente es:
+
+```powershell
+$modules = "eureka","config-server","api-gateway","videojuegos","usuarios","authentication","carrito","pagos","pedidos","resenas","inventario"
+foreach ($module in $modules) {
+  Push-Location $module
+  .\mvnw.cmd test
+  if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+  Pop-Location
+}
 ```
 
 ## Prueba Definitiva con curl
@@ -768,8 +782,9 @@ El script revisa:
 - Gateway activo.
 - Login con credenciales demo.
 - Videojuegos, usuarios, pagos, pedidos, resenas, inventario y carrito.
+- Busqueda de videojuegos por plataforma y por precio.
 - Campos enriquecidos como `nombreVideojuego`, `nombreUsuario`, `correoUsuario` y `resena`.
-- Manejo de errores con `validationErrors`.
+- Manejo de errores con `validationErrors` y error personalizado de plataforma invalida.
 
 ### Comandos de verificacion general
 

@@ -51,6 +51,7 @@ run_request "Eureka registra aplicaciones" "200" "applications" "$EUREKA_URL/eur
 run_request "Config Server entrega videojuegos/default" "200" "videojuegos" "$CONFIG_URL/videojuegos/default"
 run_request "Videojuegos lista catalogo" "200" "Cyberpunk 2077" "$BASE_URL/videojuegos"
 run_request "Videojuegos incluye catalogo realista nuevo" "200" "Dead Cells" "$BASE_URL/videojuegos"
+run_request "Videojuegos busca por plataforma PC" "200" "Cyberpunk 2077" "$BASE_URL/videojuegos/buscar?plataforma=PC"
 run_request "Videojuegos busca por rango de precio" "200" "Dead Cells" "$BASE_URL/videojuegos/buscar?precioMin=10000&precioMax=16000"
 run_request "Usuarios lista cuentas demo" "200" "jesus@tiendajuegos.cl" "$BASE_URL/usuarios"
 run_request "Usuarios incluye clientes realistas nuevos" "200" "catalina@tiendajuegos.cl" "$BASE_URL/usuarios"
@@ -86,6 +87,11 @@ run_request "Validacion devuelve errores controlados" "400" "validationErrors" \
   -X POST "$BASE_URL/videojuegos" \
   -H "Content-Type: application/json" \
   -d '{"nombre":"","categoria":"","precio":-1,"plataforma":""}'
+
+run_request "Plataforma invalida devuelve error personalizado" "400" "Plataforma no valida" \
+  -X POST "$BASE_URL/videojuegos" \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Prueba Plataforma Invalida","categoria":"Test","precio":10000,"plataforma":"Game Boy"}'
 
 echo
 if [ "$failures" -eq 0 ]; then

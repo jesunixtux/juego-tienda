@@ -29,6 +29,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @ExceptionHandler(PlataformaException.class)
+    public ResponseEntity<ErrorResponse> handlePlataforma(PlataformaException exception, HttpServletRequest request) {
+        LOGGER.warn("Invalid platform path={} message={}", request.getRequestURI(), exception.getMessage());
+        ErrorResponse response = buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request, null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException exception, HttpServletRequest request) {
         HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());

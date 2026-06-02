@@ -1,15 +1,31 @@
 package cl.duoc.videojuegos.service;
 
+import cl.duoc.videojuegos.exception.PlataformaException;
 import cl.duoc.videojuegos.model.VideoJuego;
 import cl.duoc.videojuegos.repository.VideoJuegoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 
 @Service
 public class VideoJuegoService {
+    private static final List<String> PLATAFORMAS_PERMITIDAS = List.of(
+            "PS5",
+            "PS4",
+            "XBOX",
+            "PC",
+            "PLAYSTATION",
+            "PLAYSTATION 5",
+            "PLAYSTATION 4",
+            "XBOX SERIES X",
+            "XBOX SERIES S",
+            "NINTENDO SWITCH",
+            "PC VR");
+    private static final String PLATAFORMAS_VISIBLES = "PS5, PS4, XBOX, PC, PlayStation, Nintendo Switch, PC VR";
+
     private final VideoJuegoRepository videoJuegoRepository;
 
     public VideoJuegoService(VideoJuegoRepository videoJuegoRepository) {
@@ -25,6 +41,7 @@ public class VideoJuegoService {
     }
 
     public VideoJuego crear(VideoJuego videoJuego) {
+        validarPlataforma(videoJuego);
         if (videoJuego.getActivo() == null) {
             videoJuego.setActivo(true);
         }
@@ -35,6 +52,7 @@ public class VideoJuegoService {
     public Optional<VideoJuego> actualizar(Long id, VideoJuego datosVideoJuego) {
         return videoJuegoRepository.findById(id)
                 .map(videoJuego -> {
+                    validarPlataforma(datosVideoJuego);
                     videoJuego.setNombre(datosVideoJuego.getNombre());
                     videoJuego.setCategoria(datosVideoJuego.getCategoria());
                     videoJuego.setPrecio(datosVideoJuego.getPrecio());
@@ -80,5 +98,20 @@ public class VideoJuegoService {
         }
 
         return videoJuegoRepository.findByPrecioLessThanEqual(precioMax);
+    }
+
+    private void validarPlataforma(VideoJuego videoJuego) {
+        String plataforma = videoJuego.getPlataforma();
+        if (plataforma == null || plataforma.isBlank()) {
+            return;
+        }
+
+        String plataformaLimpia = plataforma.trim();
+        String plataformaNormalizada = plataformaLimpia.toUpperCase(Locale.ROOT);
+        if (!PLATAFORMAS_PERMITIDAS.contains(plataformaNormalizada)) {
+            throw new PlataformaException("Plataforma no valida. Plataformas permitidas: " + PLATAFORMAS_VISIBLES);
+        }
+
+        videoJuego.setPlataforma(plataformaLimpia);
     }
 }

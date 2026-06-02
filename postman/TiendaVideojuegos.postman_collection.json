@@ -26,6 +26,13 @@
       }
     },
     {
+      "name": "Videojuegos - buscar por plataforma PC",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/videojuegos/buscar?plataforma=PC"
+      }
+    },
+    {
       "name": "Videojuegos - crear",
       "request": {
         "method": "POST",
@@ -38,6 +45,23 @@
         "body": {
           "mode": "raw",
           "raw": "{\n  \"nombre\": \"Hades\",\n  \"categoria\": \"Roguelike\",\n  \"precio\": 14990,\n  \"plataforma\": \"PC\"\n}"
+        },
+        "url": "{{baseUrl}}/videojuegos"
+      }
+    },
+    {
+      "name": "Errores - plataforma invalida videojuego",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Prueba Plataforma Invalida\",\n  \"categoria\": \"Test\",\n  \"precio\": 10000,\n  \"plataforma\": \"Game Boy\"\n}"
         },
         "url": "{{baseUrl}}/videojuegos"
       }
