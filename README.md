@@ -216,6 +216,27 @@ El gateway quedara disponible en:
 http://localhost:8080
 ```
 
+## Swagger / OpenAPI
+
+Con todos los servicios levantados, Swagger UI queda disponible desde el API Gateway:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+En el selector superior de Swagger UI puedes elegir el microservicio que quieres probar. Los JSON OpenAPI tambien quedan disponibles por gateway:
+
+| Microservicio | OpenAPI |
+| --- | --- |
+| `videojuegos` | `http://localhost:8080/videojuegos/v3/api-docs` |
+| `usuarios` | `http://localhost:8080/usuarios/v3/api-docs` |
+| `authentication` | `http://localhost:8080/auth/v3/api-docs` |
+| `carrito` | `http://localhost:8080/carrito/v3/api-docs` |
+| `pagos` | `http://localhost:8080/pagos/v3/api-docs` |
+| `pedidos` | `http://localhost:8080/pedidos/v3/api-docs` |
+| `resenas` | `http://localhost:8080/resenas/v3/api-docs` |
+| `inventario` | `http://localhost:8080/inventario/v3/api-docs` |
+
 ## Puertos
 
 | Servicio | Puerto |
@@ -780,6 +801,7 @@ bash scripts/test-definitivo.sh
 El script revisa:
 
 - Gateway activo.
+- Swagger UI y los JSON OpenAPI de cada microservicio.
 - Login con credenciales demo.
 - Videojuegos, usuarios, pagos, pedidos, resenas, inventario y carrito.
 - Busqueda de videojuegos por plataforma y por precio.

@@ -12,6 +12,76 @@
   ],
   "item": [
     {
+      "name": "Swagger - UI",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/swagger-ui/index.html"
+      }
+    },
+    {
+      "name": "Swagger - UI config",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/v3/api-docs/swagger-config"
+      }
+    },
+    {
+      "name": "Swagger - OpenAPI Videojuegos",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/videojuegos/v3/api-docs"
+      }
+    },
+    {
+      "name": "Swagger - OpenAPI Usuarios",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/usuarios/v3/api-docs"
+      }
+    },
+    {
+      "name": "Swagger - OpenAPI Auth",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/auth/v3/api-docs"
+      }
+    },
+    {
+      "name": "Swagger - OpenAPI Carrito",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/carrito/v3/api-docs"
+      }
+    },
+    {
+      "name": "Swagger - OpenAPI Pagos",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/pagos/v3/api-docs"
+      }
+    },
+    {
+      "name": "Swagger - OpenAPI Pedidos",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/pedidos/v3/api-docs"
+      }
+    },
+    {
+      "name": "Swagger - OpenAPI Resenas",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/resenas/v3/api-docs"
+      }
+    },
+    {
+      "name": "Swagger - OpenAPI Inventario",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/inventario/v3/api-docs"
+      }
+    },
+    {
       "name": "Videojuegos - listar",
       "request": {
         "method": "GET",
