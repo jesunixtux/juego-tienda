@@ -1,1 +1,5 @@
 /ejemplosyclases
+/backup-tienda
+**/target/
+.DS_Store
+.env

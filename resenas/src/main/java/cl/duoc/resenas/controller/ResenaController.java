@@ -3,6 +3,8 @@ package cl.duoc.resenas.controller;
 import cl.duoc.resenas.dto.ResenaDTO;
 import cl.duoc.resenas.model.Resena;
 import cl.duoc.resenas.service.ResenaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/resenas")
+@Tag(name = "Resenas", description = "Resenas de videojuegos con nombreUsuario y reportes por fecha o puntuacion.")
 public class ResenaController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResenaController.class);
 
@@ -25,12 +28,14 @@ public class ResenaController {
     }
 
     @GetMapping
+    @Operation(summary = "Listar resenas", description = "Lista resenas enriquecidas con nombreUsuario.")
     public ResponseEntity<List<ResenaDTO>> listar() {
         LOGGER.info("Listando resenas");
         return ResponseEntity.ok(resenaService.findAllConUsuario());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Buscar resena por ID", description = "Obtiene una resena especifica con datos del usuario.")
     public ResponseEntity<ResenaDTO> buscar(@PathVariable Long id) {
         LOGGER.info("Buscando resena id={}", id);
         return resenaService.findByIdConUsuario(id)
@@ -39,12 +44,14 @@ public class ResenaController {
     }
 
     @PostMapping
+    @Operation(summary = "Crear resena", description = "Registra una resena con puntuacion entre 1 y 5.")
     public ResponseEntity<ResenaDTO> crear(@Valid @RequestBody Resena r) {
         LOGGER.info("Creando resena usuarioId={} nombreJuego={}", r.getUsuarioId(), r.getNombreJuego());
         return new ResponseEntity<>(resenaService.saveConUsuario(r), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Actualizar resena", description = "Actualiza comentario, puntuacion o datos de una resena.")
     public ResponseEntity<ResenaDTO> actualizar(@PathVariable Long id, @Valid @RequestBody Resena r) {
         LOGGER.info("Actualizando resena id={}", id);
         return resenaService.updateConUsuario(id, r)
@@ -53,6 +60,7 @@ public class ResenaController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar resena", description = "Elimina una resena por ID.")
     public ResponseEntity<Void> borrar(@PathVariable Long id) {
         LOGGER.info("Eliminando resena id={}", id);
         if (!resenaService.delete(id)) {
@@ -64,18 +72,21 @@ public class ResenaController {
     }
 
     @GetMapping("/detalle")
+    @Operation(summary = "Detalle de resenas", description = "Lista resenas con informacion de usuario.")
     public ResponseEntity<List<ResenaDTO>> detalle() {
         LOGGER.info("Listando detalle de resenas");
         return ResponseEntity.ok(resenaService.findConUsuario());
     }
 
     @GetMapping("/usuario/{usuarioId}")
+    @Operation(summary = "Resenas por usuario", description = "Lista resenas realizadas por un usuario.")
     public ResponseEntity<List<ResenaDTO>> porUsuario(@PathVariable Long usuarioId) {
         LOGGER.info("Listando resenas usuarioId={}", usuarioId);
         return ResponseEntity.ok(resenaService.findByUsuarioConDetalle(usuarioId));
     }
 
     @GetMapping("/reportes/fecha")
+    @Operation(summary = "Reporte por fecha", description = "Filtra resenas entre fechas usando parametros desde y hasta en formato ISO yyyy-MM-dd.")
     public ResponseEntity<List<ResenaDTO>> porFecha(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
@@ -85,6 +96,7 @@ public class ResenaController {
     }
 
     @GetMapping("/reportes/puntuacion")
+    @Operation(summary = "Reporte por puntuacion", description = "Filtra resenas por rango de puntuacion usando min y max.")
     public ResponseEntity<List<ResenaDTO>> porPuntuacion(
             @RequestParam Integer min,
             @RequestParam Integer max) {

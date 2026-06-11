@@ -1,0 +1,251 @@
+name: juego-tienda
+
+x-service-build: &service-build
+  context: .
+  dockerfile: Dockerfile
+
+x-service-env: &service-env
+  CONFIG_SERVER_URL: http://config-server:8888
+  EUREKA_SERVER_URL: http://eureka:8761/eureka/
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+  EUREKA_PREFER_IP_ADDRESS: "true"
+  DB_HOST: mysql
+  DB_PORT: "3306"
+  DB_USER: root
+  DB_PASSWORD: ""
+  JAVA_OPTS: "-XX:MaxRAMPercentage=75"
+  JWT_SECRET: ${JWT_SECRET:-tienda-videojuegos-docker-secret-change-me}
+
+x-service-depends: &service-depends
+  mysql:
+    condition: service_healthy
+  eureka:
+    condition: service_started
+  config-server:
+    condition: service_started
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: tienda-mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_HOST: "%"
+    ports:
+      - "${MYSQL_HOST_PORT:-3307}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  apache-php:
+    build:
+      context: ./docker/apache-php
+    image: juego-tienda/apache-php:local
+    container_name: tienda-apache-php
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: root
+      DB_PASSWORD: ""
+      API_GATEWAY_URL: http://localhost:8080
+      PHPMYADMIN_URL: http://localhost:${PHPMYADMIN_HOST_PORT:-8082}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "${APACHE_PHP_HOST_PORT:-8081}:80"
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    container_name: tienda-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: "3306"
+      PMA_USER: root
+      PMA_PASSWORD: ""
+      UPLOAD_LIMIT: 128M
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "${PHPMYADMIN_HOST_PORT:-8082}:80"
+    restart: unless-stopped
+
+  eureka:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: eureka
+    image: juego-tienda/eureka:local
+    container_name: tienda-eureka
+    environment:
+      EUREKA_PORT: "8761"
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75"
+    ports:
+      - "8761:8761"
+    restart: unless-stopped
+
+  config-server:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: config-server
+    image: juego-tienda/config-server:local
+    container_name: tienda-config-server
+    environment:
+      CONFIG_SERVER_PORT: "8888"
+      CONFIG_SERVER_SEARCH_LOCATIONS: file:/config-microservicios
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75"
+    volumes:
+      - ./config-microservicios:/config-microservicios:ro
+    ports:
+      - "8888:8888"
+    restart: unless-stopped
+
+  videojuegos:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: videojuegos
+    image: juego-tienda/videojuegos:local
+    environment:
+      <<: *service-env
+      EUREKA_INSTANCE_HOSTNAME: videojuegos
+    depends_on: *service-depends
+    restart: unless-stopped
+
+  usuarios:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: usuarios
+    image: juego-tienda/usuarios:local
+    environment:
+      <<: *service-env
+      EUREKA_INSTANCE_HOSTNAME: usuarios
+    depends_on: *service-depends
+    restart: unless-stopped
+
+  authentication:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: authentication
+    image: juego-tienda/authentication:local
+    environment:
+      <<: *service-env
+      EUREKA_INSTANCE_HOSTNAME: authentication
+      JWT_EXPIRATION_MINUTES: "120"
+    depends_on: *service-depends
+    restart: unless-stopped
+
+  carrito:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: carrito
+    image: juego-tienda/carrito:local
+    environment:
+      <<: *service-env
+      EUREKA_INSTANCE_HOSTNAME: carrito
+    depends_on: *service-depends
+    restart: unless-stopped
+
+  pagos:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: pagos
+    image: juego-tienda/pagos:local
+    environment:
+      <<: *service-env
+      EUREKA_INSTANCE_HOSTNAME: pagos
+    depends_on: *service-depends
+    restart: unless-stopped
+
+  pedidos:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: pedidos
+    image: juego-tienda/pedidos:local
+    environment:
+      <<: *service-env
+      EUREKA_INSTANCE_HOSTNAME: pedidos
+    depends_on: *service-depends
+    restart: unless-stopped
+
+  resenas:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: resenas
+    image: juego-tienda/resenas:local
+    environment:
+      <<: *service-env
+      EUREKA_INSTANCE_HOSTNAME: resenas
+    depends_on: *service-depends
+    restart: unless-stopped
+
+  inventario:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: inventario
+    image: juego-tienda/inventario:local
+    environment:
+      <<: *service-env
+      EUREKA_INSTANCE_HOSTNAME: inventario
+    depends_on: *service-depends
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      <<: *service-build
+      args:
+        SERVICE_DIR: api-gateway
+    image: juego-tienda/api-gateway:local
+    container_name: tienda-api-gateway
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_SERVER_URL: http://eureka:8761/eureka/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_PREFER_IP_ADDRESS: "true"
+      EUREKA_INSTANCE_HOSTNAME: api-gateway
+      API_GATEWAY_PORT: "8080"
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75"
+      JWT_SECRET: ${JWT_SECRET:-tienda-videojuegos-docker-secret-change-me}
+    depends_on:
+      eureka:
+        condition: service_started
+      config-server:
+        condition: service_started
+      videojuegos:
+        condition: service_started
+      usuarios:
+        condition: service_started
+      authentication:
+        condition: service_started
+      carrito:
+        condition: service_started
+      pagos:
+        condition: service_started
+      pedidos:
+        condition: service_started
+      resenas:
+        condition: service_started
+      inventario:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

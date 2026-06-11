@@ -6,6 +6,8 @@ import cl.duoc.authentication.dto.CredencialResponse;
 import cl.duoc.authentication.dto.LoginRequest;
 import cl.duoc.authentication.dto.RegistroRequest;
 import cl.duoc.authentication.service.AuthenticationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "Registro, login, emision de JWT y administracion de credenciales.")
 public class AuthenticationController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationController.class);
 
@@ -34,6 +37,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/registro")
+    @Operation(summary = "Registrar usuario", description = "Crea usuario y credencial, devuelve JWT para usar rutas protegidas.")
     public ResponseEntity<AuthResponse> registrar(@Valid @RequestBody RegistroRequest request) {
         LOGGER.info("Registrando credencial correo={}", request.correo());
         AuthResponse response = authenticationService.registrar(request);
@@ -41,18 +45,21 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Iniciar sesion", description = "Valida correo y password con BCrypt, y devuelve un token JWT.")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         LOGGER.info("Intento de login correo={}", request.correo());
         return ResponseEntity.ok(authenticationService.login(request));
     }
 
     @GetMapping("/credenciales")
+    @Operation(summary = "Listar credenciales", description = "Lista credenciales sin exponer passwordHash.")
     public ResponseEntity<List<CredencialResponse>> listarCredenciales() {
         LOGGER.info("Listando credenciales");
         return ResponseEntity.ok(authenticationService.listarCredenciales());
     }
 
     @GetMapping("/credenciales/{id}")
+    @Operation(summary = "Buscar credencial", description = "Obtiene una credencial por ID sin exponer passwordHash.")
     public ResponseEntity<CredencialResponse> buscarCredencial(@PathVariable Long id) {
         LOGGER.info("Buscando credencial id={}", id);
         return authenticationService.buscarCredencial(id)
@@ -61,6 +68,7 @@ public class AuthenticationController {
     }
 
     @PutMapping("/credenciales/{id}/password")
+    @Operation(summary = "Cambiar password", description = "Valida la password actual y guarda la nueva usando BCrypt.")
     public ResponseEntity<CredencialResponse> cambiarPassword(
             @PathVariable Long id,
             @Valid @RequestBody CambiarPasswordRequest request) {
@@ -71,6 +79,7 @@ public class AuthenticationController {
     }
 
     @DeleteMapping("/credenciales/{id}")
+    @Operation(summary = "Desactivar credencial", description = "Marca una credencial como inactiva para bloquear futuros login.")
     public ResponseEntity<Void> desactivar(@PathVariable Long id) {
         LOGGER.info("Desactivando credencial id={}", id);
         if (!authenticationService.desactivar(id)) {

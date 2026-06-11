@@ -1,0 +1,9 @@
+.git
+.idea
+.DS_Store
+.env
+backup-tienda
+**/target
+ejemplosyclases
+*.log
+tmp

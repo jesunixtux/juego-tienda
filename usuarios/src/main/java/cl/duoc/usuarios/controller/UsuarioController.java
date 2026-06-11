@@ -2,6 +2,8 @@ package cl.duoc.usuarios.controller;
 
 import cl.duoc.usuarios.model.Usuario;
 import cl.duoc.usuarios.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/usuarios")
+@Tag(name = "Usuarios", description = "Administracion de usuarios, roles, datos de contacto y busqueda por correo.")
 public class UsuarioController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UsuarioController.class);
 
@@ -31,6 +34,7 @@ public class UsuarioController {
     }
 
     @GetMapping
+    @Operation(summary = "Listar usuarios", description = "Lista todos los usuarios o solo activos usando el parametro activos=true.")
     public ResponseEntity<List<Usuario>> listar(@RequestParam(required = false) Boolean activos) {
         LOGGER.info("Listando usuarios activos={}", activos);
         if (Boolean.TRUE.equals(activos)) {
@@ -41,6 +45,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Buscar usuario por ID", description = "Obtiene un usuario especifico por identificador.")
     public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id) {
         LOGGER.info("Buscando usuario id={}", id);
         return usuarioService.buscarPorId(id)
@@ -49,6 +54,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/buscar")
+    @Operation(summary = "Buscar usuario por correo", description = "Obtiene un usuario usando el correo exacto.")
     public ResponseEntity<Usuario> buscarPorCorreo(@RequestParam String correo) {
         LOGGER.info("Buscando usuario correo={}", correo);
         return usuarioService.buscarPorCorreo(correo)
@@ -57,6 +63,7 @@ public class UsuarioController {
     }
 
     @PostMapping
+    @Operation(summary = "Crear usuario", description = "Crea un usuario nuevo validando correo unico.")
     public ResponseEntity<Usuario> crear(@Valid @RequestBody Usuario usuario) {
         LOGGER.info("Creando usuario correo={}", usuario.getCorreo());
         Usuario nuevoUsuario = usuarioService.crear(usuario);
@@ -64,6 +71,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Actualizar usuario", description = "Actualiza datos personales, rol y estado activo.")
     public ResponseEntity<Usuario> actualizar(@PathVariable Long id, @Valid @RequestBody Usuario usuario) {
         LOGGER.info("Actualizando usuario id={}", id);
         return usuarioService.actualizar(id, usuario)
@@ -72,6 +80,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Desactivar usuario", description = "No borra fisicamente: marca el usuario como inactivo.")
     public ResponseEntity<Void> desactivar(@PathVariable Long id) {
         LOGGER.info("Desactivando usuario id={}", id);
         if (!usuarioService.desactivar(id)) {

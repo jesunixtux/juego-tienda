@@ -66,9 +66,12 @@ config-microservicios/*.properties
 - Spring Validation
 - Flyway
 - MySQL
+- Apache HTTP Server con PHP
+- phpMyAdmin
 - H2 para pruebas automatizadas
 - Lombok
 - Maven Wrapper
+- Docker y Docker Compose
 
 ## Coleccion Postman
 
@@ -79,6 +82,16 @@ postman/TiendaVideojuegos.postman_collection.json
 ```
 
 La coleccion usa la variable `baseUrl` con el valor `http://localhost:8080` para probar todo a traves del API Gateway.
+
+## Guia de Estudio
+
+La guia para preparar la disertacion esta en:
+
+```text
+GUIA_ESTUDIO.md
+```
+
+Incluye arquitectura, explicacion de microservicios, uso de Docker, Swagger, flujo JWT, preguntas probables del profesor y pasos para mover el proyecto a otra PC.
 
 ## Requisitos
 
@@ -102,6 +115,79 @@ DB_PASSWORD=
 ```
 
 Cada microservicio crea su propia base de datos automaticamente con `createDatabaseIfNotExist=true`.
+
+## Ejecucion con Docker Compose
+
+El proyecto incluye un `Dockerfile` reutilizable y un `docker-compose.yml` para levantar todo el stack:
+
+- MySQL
+- Apache con PHP
+- phpMyAdmin
+- Eureka
+- Config Server
+- API Gateway
+- Microservicios de negocio
+
+Antes de levantar Docker puedes crear tu archivo de variables:
+
+```bash
+cp .env.example .env
+```
+
+Por defecto Docker expone MySQL en el puerto local `3307` para evitar conflicto con XAMPP o MySQL local en `3306`. Dentro de Docker los microservicios usan `mysql:3306`.
+
+Construir imagenes:
+
+```bash
+docker compose build
+```
+
+Levantar todo:
+
+```bash
+docker compose up -d
+```
+
+Revisar estado:
+
+```bash
+docker compose ps
+docker compose logs -f api-gateway
+```
+
+URLs principales:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+http://localhost:8081
+http://localhost:8082
+http://localhost:8761
+http://localhost:8888/videojuegos/default
+```
+
+La URL `http://localhost:8081` abre Apache con PHP. La URL `http://localhost:8082` abre phpMyAdmin conectado al MySQL de Docker. Si phpMyAdmin pide credenciales, usar usuario `root` y dejar la password vacia, salvo que hayas cambiado las variables del Compose.
+
+Probar el stack levantado en Docker:
+
+```bash
+BASE_URL=http://localhost:8080 EUREKA_URL=http://localhost:8761 CONFIG_URL=http://localhost:8888 bash scripts/test-definitivo.sh
+```
+
+Detener los contenedores sin borrar la base de datos:
+
+```bash
+docker compose down
+```
+
+Detener y borrar tambien la base de datos Docker:
+
+```bash
+docker compose down -v
+```
+
+Importante: `JWT_SECRET` debe ser el mismo para `authentication` y `api-gateway`. El `docker-compose.yml` ya lo comparte desde `.env`.
+
+La carpeta `backup-tienda` queda ignorada por Git y Docker para que no se copie al contexto ni se toque durante la preparacion.
 
 ## Bases de Datos
 
