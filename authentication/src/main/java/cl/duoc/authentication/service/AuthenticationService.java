@@ -3,6 +3,7 @@ package cl.duoc.authentication.service;
 import cl.duoc.authentication.client.UsuarioClient;
 import cl.duoc.authentication.dto.AuthResponse;
 import cl.duoc.authentication.dto.CambiarPasswordRequest;
+import cl.duoc.authentication.dto.CredencialResponse;
 import cl.duoc.authentication.dto.LoginRequest;
 import cl.duoc.authentication.dto.RegistroRequest;
 import cl.duoc.authentication.dto.UsuarioRequest;
@@ -26,19 +27,24 @@ import java.util.Optional;
 public class AuthenticationService {
     private final CredencialRepository credencialRepository;
     private final UsuarioClient usuarioClient;
+    private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public AuthenticationService(CredencialRepository credencialRepository, UsuarioClient usuarioClient) {
+    public AuthenticationService(CredencialRepository credencialRepository, UsuarioClient usuarioClient, JwtService jwtService) {
         this.credencialRepository = credencialRepository;
         this.usuarioClient = usuarioClient;
+        this.jwtService = jwtService;
     }
 
-    public List<Credencial> listarCredenciales() {
-        return credencialRepository.findAll();
+    public List<CredencialResponse> listarCredenciales() {
+        return credencialRepository.findAll().stream()
+                .map(CredencialResponse::from)
+                .toList();
     }
 
-    public Optional<Credencial> buscarCredencial(Long id) {
-        return credencialRepository.findById(id);
+    public Optional<CredencialResponse> buscarCredencial(Long id) {
+        return credencialRepository.findById(id)
+                .map(CredencialResponse::from);
     }
 
     @Transactional
@@ -56,7 +62,7 @@ public class AuthenticationService {
         credencial.setActivo(true);
         credencialRepository.save(credencial);
 
-        return new AuthResponse(formatearNombreUsuario(usuario), usuario.correo(), usuario.rol(), "Registro exitoso", true, usuario.id());
+        return crearRespuestaAutenticada(usuario, "Registro exitoso");
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -72,11 +78,11 @@ public class AuthenticationService {
         }
 
         UsuarioResponse usuario = buscarUsuarioPorCorreo(credencial.getCorreo());
-        return new AuthResponse(formatearNombreUsuario(usuario), usuario.correo(), usuario.rol(), "Login exitoso", true, usuario.id());
+        return crearRespuestaAutenticada(usuario, "Login exitoso");
     }
 
     @Transactional
-    public Optional<Credencial> cambiarPassword(Long id, CambiarPasswordRequest request) {
+    public Optional<CredencialResponse> cambiarPassword(Long id, CambiarPasswordRequest request) {
         return credencialRepository.findById(id)
                 .map(credencial -> {
                     if (!passwordEncoder.matches(request.passwordActual(), credencial.getPasswordHash())) {
@@ -84,7 +90,7 @@ public class AuthenticationService {
                     }
 
                     credencial.setPasswordHash(passwordEncoder.encode(request.nuevaPassword()));
-                    return credencialRepository.save(credencial);
+                    return CredencialResponse.from(credencialRepository.save(credencial));
                 });
     }
 
@@ -143,5 +149,19 @@ public class AuthenticationService {
         }
 
         return "Usuario " + usuario.id();
+    }
+
+    private AuthResponse crearRespuestaAutenticada(UsuarioResponse usuario, String mensaje) {
+        return new AuthResponse(
+                formatearNombreUsuario(usuario),
+                usuario.correo(),
+                usuario.rol(),
+                mensaje,
+                true,
+                usuario.id(),
+                jwtService.generarToken(usuario),
+                "Bearer",
+                jwtService.getExpirationSeconds()
+        );
     }
 }

@@ -2,9 +2,9 @@ package cl.duoc.authentication.controller;
 
 import cl.duoc.authentication.dto.AuthResponse;
 import cl.duoc.authentication.dto.CambiarPasswordRequest;
+import cl.duoc.authentication.dto.CredencialResponse;
 import cl.duoc.authentication.dto.LoginRequest;
 import cl.duoc.authentication.dto.RegistroRequest;
-import cl.duoc.authentication.model.Credencial;
 import cl.duoc.authentication.service.AuthenticationService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -47,13 +47,13 @@ public class AuthenticationController {
     }
 
     @GetMapping("/credenciales")
-    public ResponseEntity<List<Credencial>> listarCredenciales() {
+    public ResponseEntity<List<CredencialResponse>> listarCredenciales() {
         LOGGER.info("Listando credenciales");
         return ResponseEntity.ok(authenticationService.listarCredenciales());
     }
 
     @GetMapping("/credenciales/{id}")
-    public ResponseEntity<Credencial> buscarCredencial(@PathVariable Long id) {
+    public ResponseEntity<CredencialResponse> buscarCredencial(@PathVariable Long id) {
         LOGGER.info("Buscando credencial id={}", id);
         return authenticationService.buscarCredencial(id)
                 .map(ResponseEntity::ok)
@@ -61,7 +61,7 @@ public class AuthenticationController {
     }
 
     @PutMapping("/credenciales/{id}/password")
-    public ResponseEntity<Credencial> cambiarPassword(
+    public ResponseEntity<CredencialResponse> cambiarPassword(
             @PathVariable Long id,
             @Valid @RequestBody CambiarPasswordRequest request) {
         LOGGER.info("Cambiando password credencial id={}", id);

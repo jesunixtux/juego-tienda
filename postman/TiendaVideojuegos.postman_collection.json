@@ -8,8 +8,22 @@
     {
       "key": "baseUrl",
       "value": "http://localhost:8080"
+    },
+    {
+      "key": "token",
+      "value": ""
     }
   ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
   "item": [
     {
       "name": "Swagger - UI",
@@ -158,7 +172,21 @@
           "raw": "{\n  \"correo\": \"jesus@tiendajuegos.cl\",\n  \"password\": \"cliente123\"\n}"
         },
         "url": "{{baseUrl}}/auth/login"
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.json();",
+              "if (body.token) {",
+              "  pm.collectionVariables.set('token', body.token);",
+              "}"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "Carrito - usuario 2",

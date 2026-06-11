@@ -60,6 +60,8 @@ config-microservicios/*.properties
 - Spring Cloud Netflix Eureka
 - Spring Cloud Gateway WebFlux
 - Spring Cloud OpenFeign
+- Spring Security
+- JWT con firma HMAC-SHA256
 - Spring Data JPA
 - Spring Validation
 - Flyway
@@ -236,6 +238,46 @@ En el selector superior de Swagger UI puedes elegir el microservicio que quieres
 | `pedidos` | `http://localhost:8080/pedidos/v3/api-docs` |
 | `resenas` | `http://localhost:8080/resenas/v3/api-docs` |
 | `inventario` | `http://localhost:8080/inventario/v3/api-docs` |
+
+## Autenticacion y JWT
+
+El API Gateway valida JWT para las rutas privadas. Primero se debe iniciar sesion:
+
+```http
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+```
+
+```json
+{
+  "correo": "jesus@tiendajuegos.cl",
+  "password": "cliente123"
+}
+```
+
+La respuesta incluye `token`, `tipoToken` y `expiraEnSegundos`. Para llamar rutas privadas en Postman o Swagger usa:
+
+```http
+Authorization: Bearer TOKEN_RECIBIDO
+```
+
+Rutas publicas:
+
+- `POST /auth/login`
+- `POST /auth/registro`
+- Swagger/OpenAPI
+- `GET /videojuegos/**`
+- `GET /inventario/**`
+- `GET /resenas/**`
+
+Rutas privadas:
+
+- `/usuarios/**`
+- `/auth/credenciales/**`
+- `/carrito/**`
+- `/pagos/**`
+- `/pedidos/**`
+- Operaciones `POST`, `PUT` y `DELETE` de catalogo, inventario y resenas
 
 ## Puertos
 
@@ -438,11 +480,12 @@ Respuesta esperada:
   "rol": "CLIENTE",
   "mensaje": "Login exitoso",
   "autenticado": true,
-  "usuarioId": 5
+  "usuarioId": 5,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tipoToken": "Bearer",
+  "expiraEnSegundos": 7200
 }
 ```
-
-Nota: este proyecto no genera JWT ni maneja sesiones. El login solo valida credenciales y devuelve una respuesta simple.
 
 ## Microservicio Carrito
 

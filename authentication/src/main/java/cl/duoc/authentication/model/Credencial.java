@@ -1,5 +1,6 @@
 package cl.duoc.authentication.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,6 +38,7 @@ public class Credencial {
     private String correo;
 
     @NotBlank(message = "La password es obligatoria")
+    @JsonIgnore
     @Column(nullable = false)
     private String passwordHash;
 

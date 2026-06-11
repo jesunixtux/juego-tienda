@@ -6,6 +6,7 @@ EUREKA_URL="${EUREKA_URL:-http://localhost:8761}"
 CONFIG_URL="${CONFIG_URL:-http://localhost:8888}"
 
 failures=0
+TOKEN=""
 
 run_request() {
   local name="$1"
@@ -43,6 +44,52 @@ run_request() {
   rm -f "$body_file"
 }
 
+login_and_capture_token() {
+  local body_file
+  body_file="$(mktemp)"
+
+  local status
+  status="$(curl --max-time 10 -s -o "$body_file" -w "%{http_code}" \
+    -X POST "$BASE_URL/auth/login" \
+    -H "Content-Type: application/json" \
+    -d '{"correo":"jesus@tiendajuegos.cl","password":"cliente123"}')"
+
+  if [ "$status" != "200" ]; then
+    echo "FAIL Login cliente demo - esperado HTTP 200, recibido HTTP $status"
+    echo "Respuesta:"
+    cat "$body_file"
+    echo
+    failures=$((failures + 1))
+    rm -f "$body_file"
+    return
+  fi
+
+  TOKEN="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("token",""))' "$body_file")"
+
+  if [ -z "$TOKEN" ]; then
+    echo "FAIL Login cliente demo - no se recibio token JWT"
+    echo "Respuesta:"
+    cat "$body_file"
+    echo
+    failures=$((failures + 1))
+    rm -f "$body_file"
+    return
+  fi
+
+  if ! grep -q '"nombreUsuario"' "$body_file"; then
+    echo "FAIL Login cliente demo - no se encontro nombreUsuario"
+    echo "Respuesta:"
+    cat "$body_file"
+    echo
+    failures=$((failures + 1))
+    rm -f "$body_file"
+    return
+  fi
+
+  echo "OK   Login cliente demo con JWT"
+  rm -f "$body_file"
+}
+
 echo "Prueba definitiva Tienda Videojuegos"
 echo "Gateway: $BASE_URL"
 echo
@@ -63,14 +110,19 @@ run_request "Videojuegos lista catalogo" "200" "Cyberpunk 2077" "$BASE_URL/video
 run_request "Videojuegos incluye catalogo realista nuevo" "200" "Dead Cells" "$BASE_URL/videojuegos"
 run_request "Videojuegos busca por plataforma PC" "200" "Cyberpunk 2077" "$BASE_URL/videojuegos/buscar?plataforma=PC"
 run_request "Videojuegos busca por rango de precio" "200" "Dead Cells" "$BASE_URL/videojuegos/buscar?precioMin=10000&precioMax=16000"
-run_request "Usuarios lista cuentas demo" "200" "jesus@tiendajuegos.cl" "$BASE_URL/usuarios"
-run_request "Usuarios incluye clientes realistas nuevos" "200" "catalina@tiendajuegos.cl" "$BASE_URL/usuarios"
-run_request "Auth lista credenciales" "200" "jesus@tiendajuegos.cl" "$BASE_URL/auth/credenciales"
 
-run_request "Login cliente demo" "200" "\"nombreUsuario\"" \
-  -X POST "$BASE_URL/auth/login" \
+login_and_capture_token
+
+AUTH_HEADER=(-H "Authorization: Bearer $TOKEN")
+
+run_request "Gateway bloquea escritura sin JWT" "401" "Token JWT requerido" \
+  -X POST "$BASE_URL/videojuegos" \
   -H "Content-Type: application/json" \
-  -d '{"correo":"jesus@tiendajuegos.cl","password":"cliente123"}'
+  -d '{"nombre":"Sin Token","categoria":"Test","precio":10000,"plataforma":"PC"}'
+
+run_request "Usuarios lista cuentas demo" "200" "jesus@tiendajuegos.cl" "${AUTH_HEADER[@]}" "$BASE_URL/usuarios"
+run_request "Usuarios incluye clientes realistas nuevos" "200" "catalina@tiendajuegos.cl" "${AUTH_HEADER[@]}" "$BASE_URL/usuarios"
+run_request "Auth lista credenciales sin passwordHash" "200" "jesus@tiendajuegos.cl" "${AUTH_HEADER[@]}" "$BASE_URL/auth/credenciales"
 
 run_request "Login admin demo" "200" "\"rol\":\"ADMIN\"" \
   -X POST "$BASE_URL/auth/login" \
@@ -82,24 +134,26 @@ run_request "Login fallido controlado" "401" "Credenciales invalidas" \
   -H "Content-Type: application/json" \
   -d '{"correo":"jesus@tiendajuegos.cl","password":"incorrecta"}'
 
-run_request "Carrito muestra nombreUsuario" "200" "nombreUsuario" "$BASE_URL/carrito/usuario/2"
-run_request "Carrito muestra nombreVideojuego" "200" "nombreVideojuego" "$BASE_URL/carrito/usuario/2"
-run_request "Carrito incluye campo resena" "200" "resena" "$BASE_URL/carrito/usuario/2"
-run_request "Resumen carrito muestra total" "200" "\"total\"" "$BASE_URL/carrito/usuario/2/resumen"
-run_request "Pagos muestra nombreUsuario" "200" "nombreUsuario" "$BASE_URL/pagos"
-run_request "Pagos lista pagos" "200" "APROBADO" "$BASE_URL/pagos"
-run_request "Pedidos muestra nombreUsuario" "200" "nombreUsuario" "$BASE_URL/pedidos"
+run_request "Carrito muestra nombreUsuario" "200" "nombreUsuario" "${AUTH_HEADER[@]}" "$BASE_URL/carrito/usuario/2"
+run_request "Carrito muestra nombreVideojuego" "200" "nombreVideojuego" "${AUTH_HEADER[@]}" "$BASE_URL/carrito/usuario/2"
+run_request "Carrito incluye campo resena" "200" "resena" "${AUTH_HEADER[@]}" "$BASE_URL/carrito/usuario/2"
+run_request "Resumen carrito muestra total" "200" "\"total\"" "${AUTH_HEADER[@]}" "$BASE_URL/carrito/usuario/2/resumen"
+run_request "Pagos muestra nombreUsuario" "200" "nombreUsuario" "${AUTH_HEADER[@]}" "$BASE_URL/pagos"
+run_request "Pagos lista pagos" "200" "APROBADO" "${AUTH_HEADER[@]}" "$BASE_URL/pagos"
+run_request "Pedidos muestra nombreUsuario" "200" "nombreUsuario" "${AUTH_HEADER[@]}" "$BASE_URL/pedidos"
 run_request "Resenas muestra nombreUsuario" "200" "nombreUsuario" "$BASE_URL/resenas"
 run_request "Inventario muestra nombreVideojuego" "200" "nombreVideojuego" "$BASE_URL/inventario"
 run_request "Inventario bajo stock responde" "200" "" "$BASE_URL/inventario/bajo-stock"
 
 run_request "Validacion devuelve errores controlados" "400" "validationErrors" \
   -X POST "$BASE_URL/videojuegos" \
+  "${AUTH_HEADER[@]}" \
   -H "Content-Type: application/json" \
   -d '{"nombre":"","categoria":"","precio":-1,"plataforma":""}'
 
 run_request "Plataforma invalida devuelve error personalizado" "400" "Plataforma no valida" \
   -X POST "$BASE_URL/videojuegos" \
+  "${AUTH_HEADER[@]}" \
   -H "Content-Type: application/json" \
   -d '{"nombre":"Prueba Plataforma Invalida","categoria":"Test","precio":10000,"plataforma":"Game Boy"}'
 
