@@ -7,13 +7,15 @@ La aplicacion esta separada por responsabilidades: catalogo de videojuegos, usua
 ## Integrante
 
 - Jesus Emilio
+- 
+- 
 
 ## Arquitectura General
 
 ```text
 Cliente / Postman / Navegador
         |
-        v
+        
 API Gateway - puerto 8080
         |
         v
