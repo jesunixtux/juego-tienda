@@ -9,14 +9,19 @@ ARG SERVICE_DIR
 WORKDIR /app
 
 COPY ${SERVICE_DIR}/pom.xml ./pom.xml
+COPY docker/maven-repository /opt/maven-repository
 
 RUN --mount=type=cache,target=/root/.m2,sharing=locked \
-    mvn -q -o dependency:go-offline -B >/dev/null 2>&1 || true
+    mkdir -p /root/.m2/repository \
+    && cp -a /opt/maven-repository/. /root/.m2/repository/ \
+    && mvn -q -o dependency:go-offline -B >/dev/null 2>&1 || true
 
 COPY ${SERVICE_DIR}/src ./src
 
 RUN --mount=type=cache,target=/root/.m2,sharing=locked \
-    mvn -o package -DskipTests -B || mvn package -DskipTests -B
+    mkdir -p /root/.m2/repository \
+    && cp -a /opt/maven-repository/. /root/.m2/repository/ \
+    && (mvn -o package -DskipTests -B || mvn package -DskipTests -B)
 
 FROM eclipse-temurin:${JAVA_VERSION}-jre
 ARG SERVICE_DIR

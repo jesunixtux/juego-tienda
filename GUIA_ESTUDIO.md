@@ -495,9 +495,45 @@ docker-compose.yml
 .dockerignore
 .env.example
 docker/apache-php/
+docker/maven-repository/
+scripts/preparar-dependencias-docker.sh
+scripts/preparar-dependencias-docker.ps1
 ```
 
-El `Dockerfile` principal usa una etapa de build con `maven:3.9.11-eclipse-temurin-25` y una etapa final con `eclipse-temurin:25-jre`. Esto evita depender del Maven Wrapper dentro de Docker y deja las dependencias Maven cacheadas en `/root/.m2`, lo que ayuda si durante la evaluacion Docker tiene internet limitado o Maven Central responde lento.
+El `Dockerfile` principal usa una etapa de build con `maven:3.9.11-eclipse-temurin-25` y una etapa final con `eclipse-temurin:25-jre`. Esto evita depender del Maven Wrapper dentro de Docker.
+
+Ademas, el build quedo preparado de forma hibrida:
+
+- Primero copia dependencias desde `docker/maven-repository` hacia `/root/.m2/repository`.
+- Luego usa cache de Docker BuildKit en `/root/.m2`.
+- Intenta compilar con Maven en modo offline.
+- Si falta una dependencia, hace un segundo intento online.
+
+Respuesta corta para el profesor:
+
+> El Dockerfile esta optimizado para no depender completamente de internet. Si ya llevo la carpeta `docker/maven-repository`, Docker puede compilar usando esas dependencias. Si falta algo y hay internet, Maven lo descarga.
+
+### Preparar dependencias portables
+
+En macOS/Linux:
+
+```bash
+./scripts/preparar-dependencias-docker.sh
+```
+
+En Windows PowerShell:
+
+```powershell
+.\scripts\preparar-dependencias-docker.ps1
+```
+
+Esto copia dependencias Maven locales a:
+
+```text
+docker/maven-repository
+```
+
+Esa carpeta puede pesar varios cientos de MB. No se sube a Git, pero sirve para copiar y pegar el proyecto completo a otra PC antes de la evaluacion.
 
 ### Servicios Docker
 
@@ -573,6 +609,7 @@ En la otra PC:
 git clone URL_DEL_REPOSITORIO
 cd juego-tienda
 cp .env.example .env
+./scripts/preparar-dependencias-docker.sh
 docker compose build
 docker compose up -d
 ```
@@ -581,6 +618,7 @@ En Windows PowerShell:
 
 ```powershell
 copy .env.example .env
+.\scripts\preparar-dependencias-docker.ps1
 docker compose build
 docker compose up -d
 ```
@@ -588,10 +626,11 @@ docker compose up -d
 ### Opcion B: copiando carpeta
 
 1. Comprimir la carpeta `juego-tienda`.
-2. Copiarla a la otra PC.
-3. Descomprimirla.
-4. Abrir terminal en la carpeta.
-5. Ejecutar:
+2. Asegurarse de incluir `docker/maven-repository` si ya preparaste dependencias.
+3. Copiarla a la otra PC.
+4. Descomprimirla.
+5. Abrir terminal en la carpeta.
+6. Ejecutar:
 
 ```bash
 cp .env.example .env
@@ -607,11 +646,14 @@ docker compose build
 docker compose up -d
 ```
 
+Si no copiaste `docker/maven-repository`, ejecuta el script de preparacion en la otra PC antes de `docker compose build`.
+
 ### Requisitos de la otra PC
 
 - Docker Desktop instalado.
 - Docker Compose disponible.
-- Internet la primera vez para descargar imagenes y dependencias Maven.
+- Internet la primera vez para descargar imagenes base de Docker.
+- Internet para dependencias Maven solo si no llevas `docker/maven-repository` o si falta alguna dependencia.
 - Puertos libres:
   - `8080`
   - `8081`

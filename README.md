@@ -130,7 +130,27 @@ El proyecto incluye un `Dockerfile` reutilizable y un `docker-compose.yml` para 
 - API Gateway
 - Microservicios de negocio
 
-El `Dockerfile` compila con una imagen Maven + Java 25 y ejecuta con una imagen JRE liviana. Las dependencias Maven se cachean durante el build para depender menos de la conexion en builds posteriores.
+El `Dockerfile` compila con una imagen Maven + Java 25 y ejecuta con una imagen JRE liviana. El build funciona de forma hibrida:
+
+- Usa una copia portable de dependencias en `docker/maven-repository` si existe.
+- Usa cache de Docker BuildKit para reutilizar `/root/.m2` entre builds.
+- Intenta compilar offline primero y, si falta algo, vuelve a intentar online.
+
+Esto ayuda cuando Docker o Maven Central tienen conexion limitada durante una evaluacion.
+
+Preparar la copia portable de dependencias en macOS/Linux:
+
+```bash
+./scripts/preparar-dependencias-docker.sh
+```
+
+En Windows PowerShell:
+
+```powershell
+.\scripts\preparar-dependencias-docker.ps1
+```
+
+La carpeta `docker/maven-repository` puede pesar varios cientos de MB. Queda ignorada por Git para no subir dependencias al repositorio, pero si copias la carpeta completa del proyecto a otra PC tambien se copia y Docker la usa durante el build.
 
 Antes de levantar Docker puedes crear tu archivo de variables:
 
