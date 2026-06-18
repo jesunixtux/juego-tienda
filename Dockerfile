@@ -1,19 +1,22 @@
 # syntax=docker/dockerfile:1.7
 
 ARG JAVA_VERSION=25
+ARG MAVEN_VERSION=3.9.11
 
-FROM eclipse-temurin:${JAVA_VERSION}-jdk AS build
+FROM maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION} AS build
 ARG SERVICE_DIR
 
-WORKDIR /workspace
+WORKDIR /app
 
-COPY ${SERVICE_DIR}/mvnw ./${SERVICE_DIR}/mvnw
-COPY ${SERVICE_DIR}/pom.xml ./${SERVICE_DIR}/pom.xml
-COPY ${SERVICE_DIR}/.mvn ./${SERVICE_DIR}/.mvn
-COPY ${SERVICE_DIR}/src ./${SERVICE_DIR}/src
+COPY ${SERVICE_DIR}/pom.xml ./pom.xml
 
-WORKDIR /workspace/${SERVICE_DIR}
-RUN --mount=type=cache,target=/root/.m2 chmod +x mvnw && ./mvnw package -DskipTests
+RUN --mount=type=cache,target=/root/.m2,sharing=locked \
+    mvn -q -o dependency:go-offline -B >/dev/null 2>&1 || true
+
+COPY ${SERVICE_DIR}/src ./src
+
+RUN --mount=type=cache,target=/root/.m2,sharing=locked \
+    mvn -o package -DskipTests -B || mvn package -DskipTests -B
 
 FROM eclipse-temurin:${JAVA_VERSION}-jre
 ARG SERVICE_DIR
@@ -21,6 +24,6 @@ ARG SERVICE_DIR
 ENV JAVA_OPTS=""
 WORKDIR /app
 
-COPY --from=build /workspace/${SERVICE_DIR}/target/*.jar /app/app.jar
+COPY --from=build /app/target/*.jar /app/app.jar
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]

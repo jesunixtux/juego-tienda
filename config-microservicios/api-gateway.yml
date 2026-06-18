@@ -1,0 +1,75 @@
+server:
+  port: "${API_GATEWAY_PORT:8080}"
+
+security:
+  jwt:
+    secret: "${JWT_SECRET:tienda-videojuegos-local-dev-secret-change-me-2026}"
+
+eureka:
+  client:
+    service-url:
+      defaultZone: "${EUREKA_SERVER_URL:http://localhost:8761/eureka/}"
+  instance:
+    hostname: "${EUREKA_INSTANCE_HOSTNAME:localhost}"
+    prefer-ip-address: "${EUREKA_PREFER_IP_ADDRESS:false}"
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: videojuegos
+              uri: "lb://videojuegos"
+              predicates:
+                - "Path=/videojuegos,/videojuegos/**"
+            - id: carrito
+              uri: "lb://carrito"
+              predicates:
+                - "Path=/carrito,/carrito/**"
+            - id: usuarios
+              uri: "lb://usuarios"
+              predicates:
+                - "Path=/usuarios,/usuarios/**"
+            - id: inventario
+              uri: "lb://inventario"
+              predicates:
+                - "Path=/inventario,/inventario/**"
+            - id: authentication
+              uri: "lb://authentication"
+              predicates:
+                - "Path=/auth,/auth/**"
+            - id: pagos
+              uri: "lb://pagos"
+              predicates:
+                - "Path=/pagos,/pagos/**"
+            - id: pedidos
+              uri: "lb://pedidos"
+              predicates:
+                - "Path=/pedidos,/pedidos/**"
+            - id: resenas
+              uri: "lb://resenas"
+              predicates:
+                - "Path=/resenas,/resenas/**"
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    urls:
+      - name: Videojuegos
+        url: /videojuegos/v3/api-docs
+      - name: Usuarios
+        url: /usuarios/v3/api-docs
+      - name: Authentication
+        url: /auth/v3/api-docs
+      - name: Carrito
+        url: /carrito/v3/api-docs
+      - name: Pagos
+        url: /pagos/v3/api-docs
+      - name: Pedidos
+        url: /pedidos/v3/api-docs
+      - name: Resenas
+        url: /resenas/v3/api-docs
+      - name: Inventario
+        url: /inventario/v3/api-docs

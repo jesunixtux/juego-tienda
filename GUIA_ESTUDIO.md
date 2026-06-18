@@ -48,7 +48,7 @@ Eureka :8761
 Config Server :8888
         |
         v
-config-microservicios/*.properties
+config-microservicios/*.yml
 
 MySQL Docker :3306 interno / 3307 en la PC
 ```
@@ -142,8 +142,8 @@ Responsabilidades:
 Ejemplo:
 
 ```text
-config-microservicios/videojuegos.properties
-config-microservicios/api-gateway.properties
+config-microservicios/videojuegos.yml
+config-microservicios/api-gateway.yml
 ```
 
 ### MySQL
@@ -497,6 +497,8 @@ docker-compose.yml
 docker/apache-php/
 ```
 
+El `Dockerfile` principal usa una etapa de build con `maven:3.9.11-eclipse-temurin-25` y una etapa final con `eclipse-temurin:25-jre`. Esto evita depender del Maven Wrapper dentro de Docker y deja las dependencias Maven cacheadas en `/root/.m2`, lo que ayuda si durante la evaluacion Docker tiene internet limitado o Maven Central responde lento.
+
 ### Servicios Docker
 
 ```text
@@ -776,17 +778,17 @@ Pasos:
 2. Agregar dependencia Eureka Client.
 3. Agregar dependencia Config Client.
 4. Crear archivo en `config-microservicios`.
-5. Agregar ruta en `api-gateway.properties`.
+5. Agregar ruta en `api-gateway.yml`.
 6. Agregar servicio en `docker-compose.yml`.
 7. Agregar Swagger si corresponde.
 8. Probar en Eureka y Gateway.
 
 ### Cambiar base de datos
 
-Editar properties del microservicio en:
+Editar el YAML del microservicio en:
 
 ```text
-config-microservicios/*.properties
+config-microservicios/*.yml
 ```
 
 En Docker normalmente se usan:
@@ -882,4 +884,3 @@ Probar:
 - Pago.
 - Error de plataforma invalida.
 - Inventario bajo stock.
-

@@ -1,0 +1,14 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false
+
+security:
+  jwt:
+    secret: tienda-videojuegos-test-secret-change-me-2026

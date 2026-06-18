@@ -33,7 +33,7 @@ Eureka - descubrimiento de servicios - puerto 8761
 Config Server - puerto 8888
         |
         v
-config-microservicios/*.properties
+config-microservicios/*.yml
 ```
 
 ## Componentes del Proyecto
@@ -109,7 +109,7 @@ En macOS/Linux puedes ejecutar el wrapper con `./mvnw`. En Windows PowerShell us
 
 Por defecto los microservicios usan:
 
-```properties
+```dotenv
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
@@ -129,6 +129,8 @@ El proyecto incluye un `Dockerfile` reutilizable y un `docker-compose.yml` para 
 - Config Server
 - API Gateway
 - Microservicios de negocio
+
+El `Dockerfile` compila con una imagen Maven + Java 25 y ejecuta con una imagen JRE liviana. Las dependencias Maven se cachean durante el build para depender menos de la conexion en builds posteriores.
 
 Antes de levantar Docker puedes crear tu archivo de variables:
 
