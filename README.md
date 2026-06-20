@@ -921,6 +921,17 @@ Carritos demo:
 
 Cada microservicio tiene pruebas de contexto con `mvn test`. Los servicios con JPA usan H2 en memoria durante pruebas, por lo que estas pruebas no necesitan MySQL, Eureka ni Config Server levantados.
 
+Tambien se incluyen pruebas unitarias con JUnit, AssertJ y Mockito sobre la logica de negocio principal:
+
+- `VideoJuegoServiceTests`: plataformas permitidas, plataforma invalida y busqueda por precio.
+- `UsuarioServiceTests`: correo duplicado, activo por defecto y desactivacion.
+- `AuthenticationServiceTests`: registro, password BCrypt, login invalido y credencial desactivada.
+- `CarritoServiceTests`: agregado de items, precio remoto, resumen con nombreUsuario/resena y vaciado.
+- `PagoServiceTests`: pago aprobado, carrito vacio y nombreUsuario desde usuarios.
+- `PedidoServiceTests`: validacion de usuario, detalle enriquecido y busqueda por precio.
+- `ResenaServiceTests`: validacion de usuario, detalle enriquecido y filtro por puntuacion.
+- `InventarioServiceTests`: inventario duplicado, bajo stock y stock insuficiente.
+
 Para correr todas las pruebas desde la raiz del proyecto:
 
 ```bash

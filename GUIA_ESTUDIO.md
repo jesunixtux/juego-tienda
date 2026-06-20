@@ -926,3 +926,40 @@ Probar:
 - Pago.
 - Error de plataforma invalida.
 - Inventario bajo stock.
+
+## 19. Pruebas unitarias para explicar
+
+La pauta pide JUnit, Mockito, asserts y estructura clara. En este proyecto puedes explicar estos ejemplos:
+
+- `VideoJuegoServiceTests`: valida plataformas permitidas, plataforma invalida y busqueda por precio.
+- `UsuarioServiceTests`: valida correo duplicado, activo por defecto y desactivacion.
+- `AuthenticationServiceTests`: valida registro, password encriptada con BCrypt, login invalido y credencial desactivada.
+- `CarritoServiceTests`: usa mocks de Feign para videojuegos, usuarios y resenas; valida subtotal, resumen y resena del usuario.
+- `PagoServiceTests`: valida que el pago consulte carrito, cree transaccion aprobada y vacie carrito.
+- `PedidoServiceTests`: valida usuario remoto y DTO con nombre/correo del usuario.
+- `ResenaServiceTests`: valida usuario remoto y filtro por puntuacion.
+- `InventarioServiceTests`: valida inventario duplicado, bajo stock y stock insuficiente.
+
+Frase para defensa:
+
+> Las pruebas unitarias no levantan todo Spring. Usan Mockito para simular repositorios y clientes Feign, por eso prueban la regla de negocio aislada. Las pruebas de contexto e integracion usan H2 para validar que cada microservicio arranca correctamente.
+
+Comando para mostrarlas:
+
+```bash
+for module in eureka config-server api-gateway videojuegos usuarios authentication carrito pagos pedidos resenas inventario; do
+  (cd "$module" && ./mvnw test) || exit 1
+done
+```
+
+En Windows PowerShell:
+
+```powershell
+$modules = "eureka","config-server","api-gateway","videojuegos","usuarios","authentication","carrito","pagos","pedidos","resenas","inventario"
+foreach ($module in $modules) {
+  Push-Location $module
+  .\mvnw.cmd test
+  if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+  Pop-Location
+}
+```
