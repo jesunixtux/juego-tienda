@@ -267,6 +267,15 @@ Swagger permite seleccionar APIs:
 - Resenas
 - Inventario
 
+Que debes explicar:
+
+- Cada microservicio tiene su propio documento OpenAPI.
+- El Gateway agrupa todos los documentos en una sola pantalla.
+- Los endpoints tienen resumen y descripcion funcional.
+- Los modelos muestran ejemplos de JSON, como usuario, videojuego, carrito, pago, pedido, resena e inventario.
+- Las respuestas documentan codigos comunes como 400, 401, 404, 409, 500 y 502 segun el caso.
+- El esquema `bearer-jwt` permite probar rutas protegidas usando el token obtenido en `/auth/login`.
+
 Para probar rutas protegidas:
 
 1. Ejecutar `POST /auth/login`.

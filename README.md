@@ -338,6 +338,8 @@ http://localhost:8080/swagger-ui/index.html
 
 En el selector superior de Swagger UI puedes elegir el microservicio que quieres probar. Los JSON OpenAPI tambien quedan disponibles por gateway:
 
+Cada microservicio documenta sus endpoints principales con descripcion funcional, parametros, modelos de entrada/salida, ejemplos de campos JSON y respuestas HTTP comunes. En los servicios que consumen otros microservicios tambien se documentan errores remotos, por ejemplo respuestas 502 cuando falla la consulta a usuarios, videojuegos, carrito o resenas.
+
 | Microservicio | OpenAPI |
 | --- | --- |
 | `videojuegos` | `http://localhost:8080/videojuegos/v3/api-docs` |

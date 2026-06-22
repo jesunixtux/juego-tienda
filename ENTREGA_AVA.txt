@@ -1,0 +1,53 @@
+ENTREGA AVA - Proyecto Tienda de Videojuegos
+
+Asignatura: Desarrollo FullStack 1
+Evaluacion: Parcial 3 - Encargo con defensa tecnica
+Proyecto: Tienda de Videojuegos - Microservicios Spring Boot
+Integrante: Jesus Emilio
+Repositorio GitHub: https://github.com/jesunixtux/juego-tienda
+
+Contenido incluido:
+- Microservicios Spring Boot.
+- API Gateway.
+- Eureka Server.
+- Config Server.
+- Archivos application.yml.
+- Dockerfile y docker-compose.yml.
+- Apache con PHP y phpMyAdmin.
+- Coleccion Postman.
+- README.md.
+- GUIA_ESTUDIO.md.
+- Pruebas JUnit/Mockito e integracion.
+
+URLs locales principales:
+- API Gateway: http://localhost:8080
+- Swagger: http://localhost:8080/swagger-ui/index.html
+- Eureka: http://localhost:8761
+- Config Server ejemplo: http://localhost:8888/videojuegos/default
+- Apache/PHP: http://localhost:8081
+- phpMyAdmin: http://localhost:8082
+
+Comandos principales:
+
+1. Levantar con Docker:
+   docker compose up -d --build
+
+2. Ver contenedores:
+   docker compose ps
+
+3. Ver logs del Gateway:
+   docker compose logs -f api-gateway
+
+4. Probar stack:
+   BASE_URL=http://localhost:8080 EUREKA_URL=http://localhost:8761 CONFIG_URL=http://localhost:8888 bash scripts/test-definitivo.sh
+
+5. Detener:
+   docker compose down
+
+Notas:
+- El puerto MySQL local de Docker es 3307 para no chocar con XAMPP/MySQL local en 3306.
+- Dentro de Docker los microservicios se conectan a mysql:3306.
+- La password MySQL por defecto esta vacia, salvo que se cambie en .env.
+- JWT_SECRET debe ser igual en authentication y api-gateway.
+- La carpeta backup-tienda no se incluye en el ZIP de entrega.
+- Las carpetas target, .git y docker/maven-repository no se incluyen en el ZIP para reducir peso.
