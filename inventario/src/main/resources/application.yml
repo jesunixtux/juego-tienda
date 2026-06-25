@@ -3,3 +3,7 @@ spring:
     name: inventario
   config:
     import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+
+springdoc:
+  api-docs:
+    path: /inventario/v3/api-docs

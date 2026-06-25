@@ -32,7 +32,7 @@ public record RegistroRequest(
 
         @NotBlank(message = "La password es obligatoria")
         @Size(min = 6, message = "La password debe tener al menos 6 caracteres")
-        @Schema(description = "Password inicial. Se guarda hasheada con BCrypt.", example = "secreto123")
+        @Schema(description = "Password inicial. Se guarda hasheada con SHA-256 y sal.", example = "secreto123")
         String password
 ) {
 }

@@ -25,8 +25,8 @@ public class JwtService {
 
     public JwtService(
             ObjectMapper objectMapper,
-            @Value("${security.jwt.secret:tienda-videojuegos-local-dev-secret-change-me-2026}") String secret,
-            @Value("${security.jwt.expiration-minutes:120}") long expirationMinutes) {
+            @Value("${jwt.secret:tienda-videojuegos-local-dev-secret-change-me-2026}") String secret,
+            @Value("${jwt.expiration-minutes:120}") long expirationMinutes) {
         this.objectMapper = objectMapper;
         this.secret = secret;
         this.expirationMinutes = expirationMinutes;

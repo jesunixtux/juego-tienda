@@ -3,7 +3,7 @@ package cl.duoc.authentication.dto;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "Respuesta de autenticacion con datos de usuario y JWT.")
+@Schema(description = "Respuesta de autenticacion con datos de usuario y token informativo.")
 @JsonPropertyOrder({"nombreUsuario", "correo", "rol", "mensaje", "autenticado", "usuarioId", "token", "tipoToken", "expiraEnSegundos"})
 public record AuthResponse(
         @Schema(description = "Nombre completo del usuario autenticado.", example = "Jesus Emilio")
@@ -18,7 +18,7 @@ public record AuthResponse(
         Boolean autenticado,
         @Schema(description = "ID del usuario asociado.", example = "1")
         Long usuarioId,
-        @Schema(description = "JWT que se debe enviar en Swagger/Postman como Bearer token.", example = "eyJhbGciOiJIUzI1NiJ9...")
+        @Schema(description = "Token generado por authentication. En esta version el gateway no exige token.", example = "eyJhbGciOiJIUzI1NiJ9...")
         String token,
         @Schema(description = "Tipo de token.", example = "Bearer")
         String tipoToken,

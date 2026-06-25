@@ -1,6 +1,6 @@
 # Guia de estudio - Proyecto Tienda de Videojuegos
 
-Esta guia esta pensada para estudiar la disertacion final del proyecto. Resume como funciona la aplicacion, como levantarla con Docker, como moverla a otra PC, que explicar en Swagger/Postman y que preguntas podria hacer el profesor.
+Esta guia esta pensada para estudiar la disertacion final del proyecto. Resume como funciona la aplicacion, como levantarla localmente o con Docker, como moverla a otra PC, que explicar en Swagger/Postman y que preguntas podria hacer el profesor.
 
 ## 1. Idea general del proyecto
 
@@ -20,7 +20,7 @@ El proyecto es una tienda de videojuegos construida con arquitectura de microser
 
 La idea principal para explicar:
 
-> El cliente no llama directamente a cada microservicio. Primero entra por el API Gateway. El Gateway valida el JWT cuando corresponde y redirige la peticion al microservicio correcto usando Eureka. Cada microservicio tiene su propia base de datos MySQL y sus tablas se crean con Flyway.
+> El cliente no llama directamente a cada microservicio. Primero entra por el API Gateway, que redirige la peticion al microservicio correcto usando Eureka. Cada microservicio tiene su propia base de datos MySQL y sus tablas se crean con Flyway. En esta version no se usa Spring Security ni se exige JWT para consumir endpoints.
 
 ## 2. Arquitectura
 
@@ -30,7 +30,7 @@ Cliente / Swagger / Postman
         v
 API Gateway :8080
         |
-        +-- valida JWT en rutas protegidas
+        +-- enruta peticiones REST
         +-- enruta con lb://nombre-servicio
         |
         v
@@ -65,8 +65,8 @@ MySQL Docker :3306 interno / 3307 en la PC
 - Flyway para migraciones SQL.
 - MySQL 8.4 en Docker.
 - H2 para pruebas automatizadas.
-- JWT para autenticacion.
-- BCrypt para guardar passwords.
+- Token HMAC-SHA256 emitido por `authentication` para pruebas.
+- Hash SHA-256 con sal para guardar passwords.
 - Swagger/OpenAPI para documentar y probar endpoints.
 - Docker Compose para levantar todo el sistema.
 - phpMyAdmin para revisar bases de datos.
@@ -88,8 +88,8 @@ Responsabilidades:
 
 - Recibe todas las peticiones.
 - Redirige rutas como `/videojuegos`, `/usuarios`, `/carrito`, `/pagos`, etc.
-- Valida el token JWT en rutas protegidas.
-- Permite rutas publicas como login, registro, Swagger, videojuegos, inventario y resenas.
+- No aplica Spring Security ni exige JWT.
+- Permite probar todos los endpoints desde Swagger/Postman sin header `Authorization`.
 
 Ejemplo:
 
@@ -211,42 +211,21 @@ Respuesta corta para el profesor:
 
 > Flyway versiona la base de datos. Cuando inicia el microservicio, revisa que migraciones faltan y las ejecuta automaticamente.
 
-## 7. Seguridad con JWT
+## 7. Autenticacion Sin Spring Security
 
 Flujo:
 
 1. El usuario llama a `/auth/login`.
-2. `authentication` valida correo y password.
-3. Si es correcto, devuelve un JWT.
-4. El cliente manda ese token en:
+2. `authentication` valida correo y password hasheada.
+3. Si es correcto, devuelve datos del usuario y un token informativo.
+4. El API Gateway no valida ese token; solo enruta al microservicio correspondiente.
+5. En Swagger/Postman se pueden probar los endpoints sin `Authorization`.
 
-```text
-Authorization: Bearer TOKEN
-```
+Como explicarlo al profesor:
 
-5. El Gateway valida firma y expiracion del token.
-6. Si el token es valido, deja pasar la peticion.
-
-Rutas publicas principales:
-
-- `POST /auth/login`
-- `POST /auth/registro`
-- `GET /videojuegos`
-- `GET /videojuegos/**`
-- `GET /inventario`
-- `GET /inventario/**`
-- `GET /resenas`
-- `GET /resenas/**`
-- Swagger/OpenAPI
-
-Rutas protegidas:
-
-- `usuarios`
-- `carrito`
-- `pagos`
-- `pedidos`
-- escrituras de videojuegos, inventario y resenas
-- administracion de credenciales
+- Se quito Spring Security para evitar bloqueos durante la evaluacion y facilitar pruebas locales/Docker.
+- El servicio `authentication` sigue existiendo porque demuestra login, registro, credenciales y pruebas unitarias.
+- Las passwords no quedan en texto plano; se guardan con SHA-256 y sal.
 
 ## 8. Swagger
 
@@ -274,15 +253,8 @@ Que debes explicar:
 - Los endpoints tienen resumen y descripcion funcional.
 - Los modelos muestran ejemplos de JSON, como usuario, videojuego, carrito, pago, pedido, resena e inventario.
 - Las respuestas documentan codigos comunes como 400, 401, 404, 409, 500 y 502 segun el caso.
-- El esquema `bearer-jwt` permite probar rutas protegidas usando el token obtenido en `/auth/login`.
-
-Para probar rutas protegidas:
-
-1. Ejecutar `POST /auth/login`.
-2. Copiar el campo `token`.
-3. Presionar `Authorize`.
-4. Pegar solo el token, sin escribir `Bearer`.
-5. Probar rutas protegidas.
+- Ya no aparece el candado `Authorize` porque no se exige Bearer token.
+- El login se puede mostrar como endpoint funcional, pero no es requisito para probar el resto.
 
 Credenciales demo:
 
@@ -334,9 +306,9 @@ DELETE /auth/credenciales/{id}
 
 Punto importante:
 
-- Password se guarda con BCrypt.
+- Password se guarda con SHA-256 y sal.
 - No se expone `passwordHash` en las respuestas.
-- Login devuelve JWT.
+- Login devuelve datos de usuario y un token informativo.
 
 ### Usuarios
 
@@ -464,9 +436,7 @@ http://localhost:8080/swagger-ui/index.html
 }
 ```
 
-4. Copiar token y usar `Authorize`.
-
-5. Probar:
+4. Probar endpoints directamente desde Swagger:
 
 ```text
 GET /videojuegos
@@ -494,7 +464,43 @@ Resultado esperado:
 400 Plataforma no valida
 ```
 
-## 11. Docker
+## 11. Ejecucion Local Sin Docker
+
+Este modo sirve cuando tienes MySQL/XAMPP/MariaDB instalado en la maquina y disponible en `localhost:3306`.
+
+En macOS/Linux:
+
+```bash
+bash scripts/local-up.sh
+```
+
+Para detener:
+
+```bash
+bash scripts/local-down.sh
+```
+
+En Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/local-up.ps1
+```
+
+Para detener:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/local-down.ps1
+```
+
+Que hace el script:
+
+- Levanta Eureka.
+- Levanta Config Server usando `config-microservicios`.
+- Levanta todos los microservicios.
+- Levanta API Gateway al final.
+- Guarda logs en `.local-logs`.
+
+## 12. Docker
 
 ### Archivos importantes
 
@@ -608,7 +614,7 @@ docker compose down -v
 
 Usar `down -v` solo si quieres reiniciar datos desde cero.
 
-## 12. Como mover el proyecto a otra PC
+## 13. Como mover el proyecto a otra PC
 
 ### Opcion A: usando GitHub
 
@@ -685,7 +691,7 @@ PHPMYADMIN_HOST_PORT=8082
 
 Por ejemplo, si `8080` esta ocupado, hay que cambiar el mapeo del `api-gateway` en `docker-compose.yml`.
 
-## 13. Comandos utiles para la defensa
+## 14. Comandos utiles para la defensa
 
 Ver servicios:
 
@@ -724,7 +730,7 @@ Entrar a MySQL:
 docker compose exec mysql mysql -u root
 ```
 
-## 14. Preguntas probables del profesor
+## 15. Preguntas probables del profesor
 
 ### Que es un microservicio?
 
@@ -744,7 +750,7 @@ Centraliza configuracion. Asi no repetimos configuraciones en todos los proyecto
 
 ### Que hace API Gateway?
 
-Es la puerta de entrada. Redirige peticiones al microservicio correspondiente y valida JWT para rutas protegidas.
+Es la puerta de entrada. Redirige peticiones al microservicio correspondiente usando las rutas configuradas y los nombres registrados en Eureka.
 
 ### Como se comunican los microservicios?
 
@@ -758,17 +764,17 @@ Las llamadas Feign pueden fallar y el sistema responde con errores controlados, 
 
 Crea y actualiza tablas con migraciones SQL. Evita crear la base de datos manualmente.
 
-### Como se protege el sistema?
+### Como se maneja la autenticacion?
 
-Con JWT. El usuario inicia sesion, recibe un token y lo manda en el header `Authorization`.
+Con el microservicio `authentication`. Valida correo y password, devuelve datos del usuario y un token informativo. El API Gateway no exige ese token porque se quito Spring Security para facilitar las pruebas del proyecto.
 
 ### Donde se valida el token?
 
-En el API Gateway, con un filtro global que revisa firma, expiracion y formato del JWT.
+En esta version no se valida en el Gateway. El token se emite como demostracion de login, pero no bloquea endpoints.
 
-### Por que se usa BCrypt?
+### Por que se usa SHA-256 con sal?
 
-Para no guardar passwords en texto plano. BCrypt guarda un hash seguro.
+Para no guardar passwords en texto plano sin depender de librerias de seguridad adicionales. En produccion seria mejor usar un algoritmo dedicado como Argon2, pero aqui se retiro la capa de seguridad por requisito del proyecto.
 
 ### Por que MySQL corre en puerto 3307?
 
@@ -784,7 +790,7 @@ Porque se probo con:
 - Tests Maven por microservicio.
 - Pruebas de flujo completo con registro, login, carrito, pago e inventario.
 
-## 15. Preguntas de modificacion que podrian pedir
+## 16. Preguntas de modificacion que podrian pedir
 
 ### Agregar una plataforma nueva
 
@@ -811,15 +817,9 @@ Agregar la plataforma en `PLATAFORMAS_PERMITIDAS` y actualizar el texto visible.
 3. Actualizar datos iniciales si corresponde.
 4. Actualizar pruebas y Swagger.
 
-### Proteger una ruta nueva
+### Agregar seguridad nuevamente si el profesor lo pide
 
-Si pasa por Gateway, revisar:
-
-```text
-api-gateway/src/main/java/cl/duoc/api_gateway/security/JwtAuthenticationFilter.java
-```
-
-Si no esta marcada como publica, pedira JWT automaticamente.
+Si pidieran proteger rutas, habria que agregar nuevamente una dependencia de seguridad, crear una configuracion del gateway y validar el token antes de enrutar. Actualmente esa capa esta retirada para que todos los endpoints sean probables sin bloqueo.
 
 ### Agregar un microservicio nuevo
 
@@ -851,7 +851,7 @@ DB_USER=root
 DB_PASSWORD=
 ```
 
-## 16. Errores comunes y solucion
+## 17. Errores comunes y solucion
 
 ### Docker no levanta
 
@@ -885,21 +885,20 @@ jesus@tiendajuegos.cl / cliente123
 admin@tiendajuegos.cl / admin123
 ```
 
-### Rutas protegidas devuelven 401
+### Login devuelve 401
 
-Falta header:
+Revisar correo y password:
 
 ```text
-Authorization: Bearer TOKEN
+jesus@tiendajuegos.cl / cliente123
+admin@tiendajuegos.cl / admin123
 ```
-
-En Swagger, usar el boton `Authorize`.
 
 ### MySQL local o XAMPP da problemas
 
 Con Docker no se necesita XAMPP. El MySQL de Docker queda aislado y se expone en `3307`.
 
-## 17. Frases cortas para responder bien
+## 18. Frases cortas para responder bien
 
 - "El Gateway es el unico punto de entrada."
 - "Eureka permite descubrir microservicios por nombre."
@@ -910,7 +909,7 @@ Con Docker no se necesita XAMPP. El MySQL de Docker queda aislado y se expone en
 - "Docker Compose levanta todo el ecosistema con un solo comando."
 - "Cada microservicio tiene una responsabilidad y su propia base de datos."
 
-## 18. Checklist antes de presentar
+## 19. Checklist antes de presentar
 
 ```bash
 docker compose ps
@@ -928,7 +927,6 @@ http://localhost:8082
 Probar:
 
 - Login.
-- Authorize en Swagger.
 - `GET /videojuegos`.
 - Busqueda por precio.
 - Carrito usuario 2.
@@ -936,13 +934,14 @@ Probar:
 - Error de plataforma invalida.
 - Inventario bajo stock.
 
-## 19. Pruebas unitarias para explicar
+## 20. Pruebas unitarias para explicar
 
 La pauta pide JUnit, Mockito, asserts y estructura clara. En este proyecto puedes explicar estos ejemplos:
 
 - `VideoJuegoServiceTests`: valida plataformas permitidas, plataforma invalida y busqueda por precio.
 - `UsuarioServiceTests`: valida correo duplicado, activo por defecto y desactivacion.
-- `AuthenticationServiceTests`: valida registro, password encriptada con BCrypt, login invalido y credencial desactivada.
+- `AuthenticationServiceTests`: valida registro, password hasheada, login invalido y credencial desactivada.
+- `PasswordHashServiceTests`: valida que la password no quede en texto plano y que el hash permita comparar correctamente.
 - `CarritoServiceTests`: usa mocks de Feign para videojuegos, usuarios y resenas; valida subtotal, resumen y resena del usuario.
 - `PagoServiceTests`: valida que el pago consulte carrito, cree transaccion aprobada y vacie carrito.
 - `PedidoServiceTests`: valida usuario remoto y DTO con nombre/correo del usuario.

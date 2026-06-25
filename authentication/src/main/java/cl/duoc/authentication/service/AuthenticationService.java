@@ -16,7 +16,6 @@ import cl.duoc.authentication.exception.UnauthorizedException;
 import cl.duoc.authentication.model.Credencial;
 import cl.duoc.authentication.repository.CredencialRepository;
 import feign.FeignException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +27,17 @@ public class AuthenticationService {
     private final CredencialRepository credencialRepository;
     private final UsuarioClient usuarioClient;
     private final JwtService jwtService;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordHashService passwordHashService;
 
-    public AuthenticationService(CredencialRepository credencialRepository, UsuarioClient usuarioClient, JwtService jwtService) {
+    public AuthenticationService(
+            CredencialRepository credencialRepository,
+            UsuarioClient usuarioClient,
+            JwtService jwtService,
+            PasswordHashService passwordHashService) {
         this.credencialRepository = credencialRepository;
         this.usuarioClient = usuarioClient;
         this.jwtService = jwtService;
+        this.passwordHashService = passwordHashService;
     }
 
     public List<CredencialResponse> listarCredenciales() {
@@ -58,7 +62,7 @@ public class AuthenticationService {
         Credencial credencial = new Credencial();
         credencial.setUsuarioId(usuario.id());
         credencial.setCorreo(usuario.correo());
-        credencial.setPasswordHash(passwordEncoder.encode(request.password()));
+        credencial.setPasswordHash(passwordHashService.hash(request.password()));
         credencial.setActivo(true);
         credencialRepository.save(credencial);
 
@@ -73,7 +77,7 @@ public class AuthenticationService {
             throw new ForbiddenException("Credencial desactivada");
         }
 
-        if (!passwordEncoder.matches(request.password(), credencial.getPasswordHash())) {
+        if (!passwordHashService.matches(request.password(), credencial.getPasswordHash())) {
             throw new UnauthorizedException("Credenciales invalidas");
         }
 
@@ -85,11 +89,11 @@ public class AuthenticationService {
     public Optional<CredencialResponse> cambiarPassword(Long id, CambiarPasswordRequest request) {
         return credencialRepository.findById(id)
                 .map(credencial -> {
-                    if (!passwordEncoder.matches(request.passwordActual(), credencial.getPasswordHash())) {
+                    if (!passwordHashService.matches(request.passwordActual(), credencial.getPasswordHash())) {
                         throw new UnauthorizedException("Password actual incorrecta");
                     }
 
-                    credencial.setPasswordHash(passwordEncoder.encode(request.nuevaPassword()));
+                    credencial.setPasswordHash(passwordHashService.hash(request.nuevaPassword()));
                     return CredencialResponse.from(credencialRepository.save(credencial));
                 });
     }

@@ -62,8 +62,8 @@ config-microservicios/*.yml
 - Spring Cloud Netflix Eureka
 - Spring Cloud Gateway WebFlux
 - Spring Cloud OpenFeign
-- Spring Security
-- JWT con firma HMAC-SHA256
+- Token HMAC-SHA256 emitido por `authentication` para pruebas
+- Hash SHA-256 con sal para passwords
 - Spring Data JPA
 - Spring Validation
 - Flyway
@@ -93,7 +93,7 @@ La guia para preparar la disertacion esta en:
 GUIA_ESTUDIO.md
 ```
 
-Incluye arquitectura, explicacion de microservicios, uso de Docker, Swagger, flujo JWT, preguntas probables del profesor y pasos para mover el proyecto a otra PC.
+Incluye arquitectura, explicacion de microservicios, uso de Docker, Swagger, autenticacion sin Spring Security, preguntas probables del profesor y pasos para mover el proyecto a otra PC.
 
 ## Requisitos
 
@@ -117,6 +117,36 @@ DB_PASSWORD=
 ```
 
 Cada microservicio crea su propia base de datos automaticamente con `createDatabaseIfNotExist=true`.
+
+## Ejecucion Local Sin Docker
+
+Este modo usa MySQL instalado en la maquina, normalmente XAMPP/MariaDB/MySQL en `localhost:3306`.
+
+En macOS/Linux:
+
+```bash
+bash scripts/local-up.sh
+```
+
+Detener:
+
+```bash
+bash scripts/local-down.sh
+```
+
+En Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/local-up.ps1
+```
+
+Detener:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/local-down.ps1
+```
+
+Los logs quedan en `.local-logs` y los PID temporales en `.local-pids`. Si cambias usuario, password o puerto de MySQL, exporta `DB_HOST`, `DB_PORT`, `DB_USER` y `DB_PASSWORD` antes de levantar.
 
 ## Ejecucion con Docker Compose
 
@@ -209,7 +239,7 @@ Detener y borrar tambien la base de datos Docker:
 docker compose down -v
 ```
 
-Importante: `JWT_SECRET` debe ser el mismo para `authentication` y `api-gateway`. El `docker-compose.yml` ya lo comparte desde `.env`.
+Importante: en esta version el API Gateway no aplica Spring Security ni exige JWT. `JWT_SECRET` solo lo usa `authentication` para emitir el token informativo de login.
 
 La carpeta `backup-tienda` queda ignorada por Git y Docker para que no se copie al contexto ni se toque durante la preparacion.
 
@@ -351,9 +381,47 @@ Cada microservicio documenta sus endpoints principales con descripcion funcional
 | `resenas` | `http://localhost:8080/resenas/v3/api-docs` |
 | `inventario` | `http://localhost:8080/inventario/v3/api-docs` |
 
+### Activar Swagger Desde IntelliJ
+
+1. Abrir la carpeta raiz `juego-tienda` en IntelliJ.
+2. Esperar a que IntelliJ importe los proyectos Maven.
+3. Tener MySQL activo:
+   - XAMPP/MySQL local: `localhost:3306`.
+   - MySQL de Docker: ejecutar `docker compose up -d mysql` y usar `DB_PORT=3307` en los microservicios.
+4. Ejecutar las aplicaciones en este orden:
+   - `EurekaApplication`
+   - `ConfigServerApplication`
+   - `VideojuegosApplication`
+   - `UsuariosApplication`
+   - `AuthenticationApplication`
+   - `CarritoApplication`
+   - `PagosApplication`
+   - `PedidosApplication`
+   - `ResenasApplication`
+   - `InventarioApplication`
+   - `ApiGatewayApplication`
+5. Abrir:
+
+```text
+http://localhost:8080/swagger-ui/index.html?urls.primaryName=Videojuegos
+```
+
+Si usas MySQL de Docker desde IntelliJ, configura en los microservicios de negocio estas variables de entorno:
+
+```dotenv
+DB_HOST=localhost
+DB_PORT=3307
+DB_USER=root
+DB_PASSWORD=
+```
+
+Si usas XAMPP/MySQL local, normalmente no necesitas cambiar nada porque el valor por defecto es `localhost:3306`.
+
 ## Autenticacion y JWT
 
-El API Gateway valida JWT para las rutas privadas. Primero se debe iniciar sesion:
+El proyecto no usa Spring Security ni bloquea rutas en el API Gateway. El microservicio `authentication` permite registrar usuarios, iniciar sesion y emitir un token HMAC-SHA256 como dato informativo para pruebas, pero no es obligatorio enviarlo para consumir los endpoints.
+
+Ejemplo de login:
 
 ```http
 POST http://localhost:8080/auth/login
@@ -367,29 +435,7 @@ Content-Type: application/json
 }
 ```
 
-La respuesta incluye `token`, `tipoToken` y `expiraEnSegundos`. Para llamar rutas privadas en Postman o Swagger usa:
-
-```http
-Authorization: Bearer TOKEN_RECIBIDO
-```
-
-Rutas publicas:
-
-- `POST /auth/login`
-- `POST /auth/registro`
-- Swagger/OpenAPI
-- `GET /videojuegos/**`
-- `GET /inventario/**`
-- `GET /resenas/**`
-
-Rutas privadas:
-
-- `/usuarios/**`
-- `/auth/credenciales/**`
-- `/carrito/**`
-- `/pagos/**`
-- `/pedidos/**`
-- Operaciones `POST`, `PUT` y `DELETE` de catalogo, inventario y resenas
+La respuesta incluye `token`, `tipoToken` y `expiraEnSegundos`, pero Swagger/Postman pueden probar los endpoints sin `Authorization`.
 
 ## Puertos
 
@@ -547,7 +593,7 @@ Este servicio se comunica con `usuarios` usando OpenFeign:
 
 - Al registrarse, crea primero el usuario en `usuarios`.
 - Luego guarda la credencial en `bd_auth`.
-- La password se guarda encriptada con BCrypt.
+- La password se guarda hasheada con SHA-256 y sal.
 
 ### Endpoints
 
@@ -927,7 +973,8 @@ Tambien se incluyen pruebas unitarias con JUnit, AssertJ y Mockito sobre la logi
 
 - `VideoJuegoServiceTests`: plataformas permitidas, plataforma invalida y busqueda por precio.
 - `UsuarioServiceTests`: correo duplicado, activo por defecto y desactivacion.
-- `AuthenticationServiceTests`: registro, password BCrypt, login invalido y credencial desactivada.
+- `AuthenticationServiceTests`: registro, password hasheada, login invalido y credencial desactivada.
+- `PasswordHashServiceTests`: verifica que la password no quede en texto plano y que el hash permita validar correctamente.
 - `CarritoServiceTests`: agregado de items, precio remoto, resumen con nombreUsuario/resena y vaciado.
 - `PagoServiceTests`: pago aprobado, carrito vacio y nombreUsuario desde usuarios.
 - `PedidoServiceTests`: validacion de usuario, detalle enriquecido y busqueda por precio.
@@ -1254,7 +1301,7 @@ export INVENTARIO_PORT=8088
 ## Validaciones y Reglas
 
 - Los correos de usuario deben ser unicos.
-- Las passwords se guardan encriptadas con BCrypt.
+- Las passwords se guardan hasheadas con SHA-256 y sal.
 - Los videojuegos deben tener precio mayor a 0.
 - El carrito valida que el videojuego exista antes de agregarlo.
 - El carrito muestra el nombre del usuario, el nombre del videojuego y, si existe, la resena previa del usuario sobre ese juego.

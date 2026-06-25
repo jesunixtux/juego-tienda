@@ -115,10 +115,7 @@ login_and_capture_token
 
 AUTH_HEADER=(-H "Authorization: Bearer $TOKEN")
 
-run_request "Gateway bloquea escritura sin JWT" "401" "Token JWT requerido" \
-  -X POST "$BASE_URL/videojuegos" \
-  -H "Content-Type: application/json" \
-  -d '{"nombre":"Sin Token","categoria":"Test","precio":10000,"plataforma":"PC"}'
+run_request "Gateway enruta usuarios sin JWT" "200" "jesus@tiendajuegos.cl" "$BASE_URL/usuarios"
 
 run_request "Usuarios lista cuentas demo" "200" "jesus@tiendajuegos.cl" "${AUTH_HEADER[@]}" "$BASE_URL/usuarios"
 run_request "Usuarios incluye clientes realistas nuevos" "200" "catalina@tiendajuegos.cl" "${AUTH_HEADER[@]}" "$BASE_URL/usuarios"

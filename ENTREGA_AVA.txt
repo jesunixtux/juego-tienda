@@ -1,7 +1,7 @@
 ENTREGA AVA - Proyecto Tienda de Videojuegos
 
 Asignatura: Desarrollo FullStack 1
-Evaluacion: Parcial 3 - Encargo con defensa tecnica
+Evaluacion: Parcial 3 - Defensa tecnica individual
 Proyecto: Tienda de Videojuegos - Microservicios Spring Boot
 Integrante: Jesus Emilio
 Repositorio GitHub: https://github.com/jesunixtux/juego-tienda
@@ -17,7 +17,11 @@ Contenido incluido:
 - Coleccion Postman.
 - README.md.
 - GUIA_ESTUDIO.md.
+- RESULTADOS_PRUEBAS_DEFENSA.txt.
+- Scripts para ejecutar local sin Docker y para Docker.
 - Pruebas JUnit/Mockito e integracion.
+- Swagger/OpenAPI actualizado sin candado JWT obligatorio.
+- API Gateway sin Spring Security; enruta los microservicios por Eureka.
 
 URLs locales principales:
 - API Gateway: http://localhost:8080
@@ -29,25 +33,38 @@ URLs locales principales:
 
 Comandos principales:
 
-1. Levantar con Docker:
+1. Levantar local sin Docker en macOS/Linux:
+   bash scripts/local-up.sh
+
+2. Detener local sin Docker en macOS/Linux:
+   bash scripts/local-down.sh
+
+3. Levantar local sin Docker en Windows PowerShell:
+   powershell -ExecutionPolicy Bypass -File scripts/local-up.ps1
+
+4. Detener local sin Docker en Windows PowerShell:
+   powershell -ExecutionPolicy Bypass -File scripts/local-down.ps1
+
+5. Levantar con Docker:
    docker compose up -d --build
 
-2. Ver contenedores:
+6. Ver contenedores:
    docker compose ps
 
-3. Ver logs del Gateway:
+7. Ver logs del Gateway:
    docker compose logs -f api-gateway
 
-4. Probar stack:
+8. Probar stack:
    BASE_URL=http://localhost:8080 EUREKA_URL=http://localhost:8761 CONFIG_URL=http://localhost:8888 bash scripts/test-definitivo.sh
 
-5. Detener:
+9. Detener:
    docker compose down
 
 Notas:
 - El puerto MySQL local de Docker es 3307 para no chocar con XAMPP/MySQL local en 3306.
+- El modo local sin Docker espera MySQL en localhost:3306.
 - Dentro de Docker los microservicios se conectan a mysql:3306.
 - La password MySQL por defecto esta vacia, salvo que se cambie en .env.
-- JWT_SECRET debe ser igual en authentication y api-gateway.
+- JWT_SECRET solo lo usa authentication para emitir un token informativo; el Gateway no exige JWT.
 - La carpeta backup-tienda no se incluye en el ZIP de entrega.
 - Las carpetas target, .git y docker/maven-repository no se incluyen en el ZIP para reducir peso.

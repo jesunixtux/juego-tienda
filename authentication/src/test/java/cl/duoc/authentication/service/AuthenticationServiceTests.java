@@ -10,13 +10,12 @@ import cl.duoc.authentication.exception.ForbiddenException;
 import cl.duoc.authentication.exception.UnauthorizedException;
 import cl.duoc.authentication.model.Credencial;
 import cl.duoc.authentication.repository.CredencialRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -39,13 +38,22 @@ class AuthenticationServiceTests {
     @Mock
     private JwtService jwtService;
 
-    @InjectMocks
     private AuthenticationService authenticationService;
+    private PasswordHashService passwordHashService;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @BeforeEach
+    void setUp() {
+        passwordHashService = new PasswordHashService();
+        authenticationService = new AuthenticationService(
+                credencialRepository,
+                usuarioClient,
+                jwtService,
+                passwordHashService
+        );
+    }
 
     @Test
-    void registrarCreaUsuarioCredencialEncriptadaYToken() {
+    void registrarCreaUsuarioCredencialHasheadaYToken() {
         RegistroRequest request = new RegistroRequest(
                 "Jesus",
                 "Emilio",
@@ -72,7 +80,7 @@ class AuthenticationServiceTests {
         assertThat(response.nombreUsuario()).isEqualTo("Jesus Emilio");
         assertThat(response.token()).isEqualTo("jwt-demo");
         assertThat(credencialGuardada.getPasswordHash()).isNotEqualTo("cliente123");
-        assertThat(passwordEncoder.matches("cliente123", credencialGuardada.getPasswordHash())).isTrue();
+        assertThat(passwordHashService.matches("cliente123", credencialGuardada.getPasswordHash())).isTrue();
     }
 
     @Test
@@ -118,7 +126,7 @@ class AuthenticationServiceTests {
         credencial.setId(1L);
         credencial.setUsuarioId(2L);
         credencial.setCorreo("jesus@tiendajuegos.cl");
-        credencial.setPasswordHash(passwordEncoder.encode(password));
+        credencial.setPasswordHash(passwordHashService.hash(password));
         credencial.setActivo(true);
         return credencial;
     }

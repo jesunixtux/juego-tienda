@@ -26,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication", description = "Registro, login, emision de JWT y administracion de credenciales.")
+@Tag(name = "Authentication", description = "Registro, login, emision de token informativo y administracion de credenciales.")
 public class AuthenticationController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationController.class);
 
@@ -37,7 +37,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/registro")
-    @Operation(summary = "Registrar usuario", description = "Crea usuario y credencial, devuelve JWT para usar rutas protegidas.")
+    @Operation(summary = "Registrar usuario", description = "Crea usuario y credencial, y devuelve datos de autenticacion. El gateway no bloquea rutas por token.")
     public ResponseEntity<AuthResponse> registrar(@Valid @RequestBody RegistroRequest request) {
         LOGGER.info("Registrando credencial correo={}", request.correo());
         AuthResponse response = authenticationService.registrar(request);
@@ -45,7 +45,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Iniciar sesion", description = "Valida correo y password con BCrypt, y devuelve un token JWT.")
+    @Operation(summary = "Iniciar sesion", description = "Valida correo y password hasheada, y devuelve un token informativo para pruebas.")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         LOGGER.info("Intento de login correo={}", request.correo());
         return ResponseEntity.ok(authenticationService.login(request));
@@ -68,7 +68,7 @@ public class AuthenticationController {
     }
 
     @PutMapping("/credenciales/{id}/password")
-    @Operation(summary = "Cambiar password", description = "Valida la password actual y guarda la nueva usando BCrypt.")
+    @Operation(summary = "Cambiar password", description = "Valida la password actual y guarda la nueva usando hash SHA-256 con sal.")
     public ResponseEntity<CredencialResponse> cambiarPassword(
             @PathVariable Long id,
             @Valid @RequestBody CambiarPasswordRequest request) {

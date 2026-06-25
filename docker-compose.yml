@@ -14,7 +14,6 @@ x-service-env: &service-env
   DB_USER: root
   DB_PASSWORD: ""
   JAVA_OPTS: "-XX:MaxRAMPercentage=75"
-  JWT_SECRET: ${JWT_SECRET:-tienda-videojuegos-docker-secret-change-me}
 
 x-service-depends: &service-depends
   mysql:
@@ -142,6 +141,7 @@ services:
     environment:
       <<: *service-env
       EUREKA_INSTANCE_HOSTNAME: authentication
+      JWT_SECRET: ${JWT_SECRET:-tienda-videojuegos-docker-secret-change-me}
       JWT_EXPIRATION_MINUTES: "120"
     depends_on: *service-depends
     restart: unless-stopped
@@ -221,7 +221,6 @@ services:
       EUREKA_INSTANCE_HOSTNAME: api-gateway
       API_GATEWAY_PORT: "8080"
       JAVA_OPTS: "-XX:MaxRAMPercentage=75"
-      JWT_SECRET: ${JWT_SECRET:-tienda-videojuegos-docker-secret-change-me}
     depends_on:
       eureka:
         condition: service_started

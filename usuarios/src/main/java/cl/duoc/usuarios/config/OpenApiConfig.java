@@ -1,12 +1,10 @@
 package cl.duoc.usuarios.config;
 
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -25,18 +23,8 @@ public class OpenApiConfig {
                         .license(new License().name("Proyecto academico Duoc UC")))
                 .addServersItem(new Server()
                         .url("http://localhost:8080")
-                        .description("API Gateway Docker/local"))
-                .components(jwtComponents());
+                        .description("API Gateway Docker/local"));
     }
-
-    private Components jwtComponents() {
-        return new Components().addSecuritySchemes("bearer-jwt", new SecurityScheme()
-                .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .bearerFormat("JWT")
-                .description("Pegar el token entregado por /auth/login sin escribir la palabra Bearer."));
-    }
-
     @Bean
     OperationCustomizer usuariosResponsesCustomizer() {
         return (Operation operation, HandlerMethod handlerMethod) -> {
