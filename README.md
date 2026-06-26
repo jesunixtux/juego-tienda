@@ -385,9 +385,7 @@ Cada microservicio documenta sus endpoints principales con descripcion funcional
 
 1. Abrir la carpeta raiz `juego-tienda` en IntelliJ.
 2. Esperar a que IntelliJ importe los proyectos Maven.
-3. Tener MySQL activo:
-   - XAMPP/MySQL local: `localhost:3306`.
-   - MySQL de Docker: ejecutar `docker compose up -d mysql` y usar `DB_PORT=3307` en los microservicios.
+3. Tener XAMPP/MySQL activo en `localhost:3306`. Este es el camino recomendado si vas a ejecutar los microservicios desde IntelliJ sin Docker.
 4. Ejecutar las aplicaciones en este orden:
    - `EurekaApplication`
    - `ConfigServerApplication`
@@ -406,7 +404,16 @@ Cada microservicio documenta sus endpoints principales con descripcion funcional
 http://localhost:8080/swagger-ui/index.html?urls.primaryName=Videojuegos
 ```
 
-Si usas MySQL de Docker desde IntelliJ, configura en los microservicios de negocio estas variables de entorno:
+Con XAMPP normalmente no necesitas variables extra porque estos son los valores por defecto:
+
+```dotenv
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+```
+
+Si decides usar solo MySQL de Docker desde IntelliJ, ejecuta `docker compose up -d mysql` y configura en los microservicios de negocio:
 
 ```dotenv
 DB_HOST=localhost
@@ -415,7 +422,11 @@ DB_USER=root
 DB_PASSWORD=
 ```
 
-Si usas XAMPP/MySQL local, normalmente no necesitas cambiar nada porque el valor por defecto es `localhost:3306`.
+Si en Swagger presionas `Execute` y solo ves el curl, revisa primero que el microservicio elegido y `ApiGatewayApplication` esten corriendo. Abre Swagger desde `localhost`, no desde otra IP:
+
+```text
+http://localhost:8080/swagger-ui/index.html?urls.primaryName=Videojuegos
+```
 
 ## Autenticacion y JWT
 
@@ -545,6 +556,8 @@ Campos relevantes:
 
 Gestiona los usuarios del sistema.
 
+Importante: `/usuarios` administra datos personales y roles, pero no crea password. Para crear una cuenta completa con password obligatoria se usa `/auth/registro`.
+
 ### Modelo principal
 
 Campos relevantes:
@@ -594,12 +607,13 @@ Este servicio se comunica con `usuarios` usando OpenFeign:
 - Al registrarse, crea primero el usuario en `usuarios`.
 - Luego guarda la credencial en `bd_auth`.
 - La password se guarda hasheada con SHA-256 y sal.
+- La password es obligatoria y debe tener minimo 5 caracteres.
 
 ### Endpoints
 
 | Metodo | Ruta | Funcion |
 | --- | --- | --- |
-| `POST` | `/auth/registro` | Registra usuario y credencial. |
+| `POST` | `/auth/registro` | Crea cuenta con usuario, credencial y password obligatoria. |
 | `POST` | `/auth/login` | Valida correo y password. |
 | `GET` | `/auth/credenciales` | Lista credenciales. |
 | `GET` | `/auth/credenciales/{id}` | Busca credencial por ID. |
@@ -616,7 +630,7 @@ Este servicio se comunica con `usuarios` usando OpenFeign:
   "telefono": "+56912345678",
   "direccion": "Santiago",
   "rol": "CLIENTE",
-  "password": "123456"
+  "password": "12345"
 }
 ```
 
@@ -625,7 +639,7 @@ Este servicio se comunica con `usuarios` usando OpenFeign:
 ```json
 {
   "correo": "juan@tiendajuegos.cl",
-  "password": "123456"
+  "password": "12345"
 }
 ```
 
@@ -973,6 +987,7 @@ Tambien se incluyen pruebas unitarias con JUnit, AssertJ y Mockito sobre la logi
 
 - `VideoJuegoServiceTests`: plataformas permitidas, plataforma invalida y busqueda por precio.
 - `UsuarioServiceTests`: correo duplicado, activo por defecto y desactivacion.
+- `AuthenticationControllerValidationTests`: password ausente, password corta y password valida de 5 caracteres en `/auth/registro`.
 - `AuthenticationServiceTests`: registro, password hasheada, login invalido y credencial desactivada.
 - `PasswordHashServiceTests`: verifica que la password no quede en texto plano y que el hash permita validar correctamente.
 - `CarritoServiceTests`: agregado de items, precio remoto, resumen con nombreUsuario/resena y vaciado.

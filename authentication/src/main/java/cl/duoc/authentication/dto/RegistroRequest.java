@@ -30,9 +30,13 @@ public record RegistroRequest(
         @Schema(description = "Rol inicial del usuario.", example = "CLIENTE", allowableValues = {"CLIENTE", "ADMIN"})
         String rol,
 
-        @NotBlank(message = "La password es obligatoria")
-        @Size(min = 6, message = "La password debe tener al menos 6 caracteres")
-        @Schema(description = "Password inicial. Se guarda hasheada con SHA-256 y sal.", example = "secreto123")
+        @NotBlank(message = "La contrasena invalida: es obligatoria")
+        @Size(min = 5, message = "La contrasena invalida: debe tener minimo 5 caracteres")
+        @Schema(
+                description = "Password inicial obligatoria. Minimo 5 caracteres. Se guarda hasheada con SHA-256 y sal.",
+                example = "clave123",
+                minLength = 5,
+                requiredMode = Schema.RequiredMode.REQUIRED)
         String password
 ) {
 }

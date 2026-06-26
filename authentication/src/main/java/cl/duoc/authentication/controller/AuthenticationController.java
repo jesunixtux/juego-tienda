@@ -37,7 +37,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/registro")
-    @Operation(summary = "Registrar usuario", description = "Crea usuario y credencial, y devuelve datos de autenticacion. El gateway no bloquea rutas por token.")
+    @Operation(summary = "Crear cuenta", description = "Crea usuario y credencial. La password es obligatoria y debe tener minimo 5 caracteres.")
     public ResponseEntity<AuthResponse> registrar(@Valid @RequestBody RegistroRequest request) {
         LOGGER.info("Registrando credencial correo={}", request.correo());
         AuthResponse response = authenticationService.registrar(request);
@@ -45,7 +45,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Iniciar sesion", description = "Valida correo y password hasheada, y devuelve un token informativo para pruebas.")
+    @Operation(summary = "Iniciar sesion", description = "Valida correo y password de minimo 5 caracteres, y devuelve un token informativo para pruebas.")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         LOGGER.info("Intento de login correo={}", request.correo());
         return ResponseEntity.ok(authenticationService.login(request));
@@ -68,7 +68,7 @@ public class AuthenticationController {
     }
 
     @PutMapping("/credenciales/{id}/password")
-    @Operation(summary = "Cambiar password", description = "Valida la password actual y guarda la nueva usando hash SHA-256 con sal.")
+    @Operation(summary = "Cambiar password", description = "Valida la password actual y guarda la nueva. Ambas deben tener minimo 5 caracteres.")
     public ResponseEntity<CredencialResponse> cambiarPassword(
             @PathVariable Long id,
             @Valid @RequestBody CambiarPasswordRequest request) {

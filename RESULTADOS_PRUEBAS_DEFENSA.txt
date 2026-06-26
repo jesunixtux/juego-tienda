@@ -9,10 +9,13 @@ CAMBIOS VALIDADOS
 - API Gateway sin filtro JWT obligatorio.
 - Authentication sin dependencia directa de librerias de seguridad para el hash de password.
 - Passwords con hash SHA-256 y sal.
+- Creacion de cuentas exige password obligatoria con minimo 5 caracteres.
+- Error personalizado `Contrasena invalida` para password ausente o corta.
 - Migracion Flyway V6 para convertir credenciales demo al nuevo formato de hash.
 - Swagger/OpenAPI sin esquema Bearer obligatorio.
 - Swagger/OpenAPI con configuracion local de respaldo para IntelliJ.
 - API Gateway muestra los 8 documentos OpenAPI desde `/v3/api-docs/swagger-config`.
+- Swagger UI tiene Try-it-out habilitado y CORS local configurado en API Gateway.
 - Scripts para ejecucion local sin Docker en macOS/Linux y Windows PowerShell.
 - Docker Compose mantiene el despliegue dockerizado.
 
@@ -35,13 +38,14 @@ COMANDOS EJECUTADOS
    ./mvnw spring-boot:run -Dspring-boot.run.arguments="--server.port=18080 --spring.cloud.config.enabled=false --eureka.client.enabled=false --spring.cloud.discovery.enabled=false"
    curl http://localhost:18080/v3/api-docs/swagger-config
    curl -I http://localhost:18080/swagger-ui/index.html
+   curl -i -X OPTIONS http://localhost:18080/auth/registro -H "Origin: http://127.0.0.1:8080" -H "Access-Control-Request-Method: POST"
 
 RESULTADO MAVEN CLEAN TEST
 - eureka: tests=1, failures=0, errors=0, skipped=0
 - config-server: tests=1, failures=0, errors=0, skipped=0
 - videojuegos: tests=6, failures=0, errors=0, skipped=0
 - usuarios: tests=4, failures=0, errors=0, skipped=0
-- authentication: tests=8, failures=0, errors=0, skipped=0
+- authentication: tests=11, failures=0, errors=0, skipped=0
 - carrito: tests=5, failures=0, errors=0, skipped=0
 - pagos: tests=4, failures=0, errors=0, skipped=0
 - pedidos: tests=4, failures=0, errors=0, skipped=0
@@ -50,7 +54,7 @@ RESULTADO MAVEN CLEAN TEST
 - api-gateway: tests=1, failures=0, errors=0, skipped=0
 
 TOTAL
-- 43 pruebas ejecutadas.
+- 46 pruebas ejecutadas.
 - 0 fallas.
 - 0 errores.
 - 0 omitidas.
@@ -63,12 +67,15 @@ RESULTADO DOCKER
 RESULTADO POSTMAN
 - postman/TiendaVideojuegos.postman_collection.json: JSON valido.
 - La coleccion ya no define Bearer global obligatorio.
+- La coleccion incluye `Auth - crear cuenta valida` y `Auth - error password corta`.
 
 RESULTADO SWAGGER
 - /swagger-ui/index.html respondio HTTP 200.
 - /v3/api-docs/swagger-config respondio con 8 APIs:
   Authentication, Carrito, Inventario, Pagos, Pedidos, Resenas, Usuarios y Videojuegos.
 - La API primaria queda configurada como Videojuegos mediante `urls.primaryName`.
+- Try-it-out quedo activo y supportedSubmitMethods incluye GET, POST, PUT, DELETE, PATCH y OPTIONS.
+- CORS local respondio Access-Control-Allow-Origin para http://127.0.0.1:8080.
 
 NOTA PARA LA DEFENSA
 Para probar Docker, abrir Docker Desktop y ejecutar:

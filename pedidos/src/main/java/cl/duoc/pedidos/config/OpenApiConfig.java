@@ -22,8 +22,8 @@ public class OpenApiConfig {
                         .description("API para registrar pedidos y consultar reportes por usuario, fecha o rango de precio.")
                         .license(new License().name("Proyecto academico Duoc UC")))
                 .addServersItem(new Server()
-                        .url("http://localhost:8080")
-                        .description("API Gateway Docker/local"));
+                        .url("/")
+                        .description("API Gateway actual"));
     }
     @Bean
     OperationCustomizer pedidosResponsesCustomizer() {

@@ -19,11 +19,11 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Tienda Videojuegos - Usuarios")
                         .version("1.0.0")
-                        .description("API para administrar usuarios, consultar usuarios activos y buscar cuentas por correo.")
+                        .description("API para administrar datos de usuarios, roles y estado activo. La cuenta con password se crea desde Authentication en /auth/registro.")
                         .license(new License().name("Proyecto academico Duoc UC")))
                 .addServersItem(new Server()
-                        .url("http://localhost:8080")
-                        .description("API Gateway Docker/local"));
+                        .url("/")
+                        .description("API Gateway actual"));
     }
     @Bean
     OperationCustomizer usuariosResponsesCustomizer() {

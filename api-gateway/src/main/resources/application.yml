@@ -7,6 +7,22 @@ spring:
     gateway:
       server:
         webflux:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowed-origin-patterns:
+                  - "http://localhost:*"
+                  - "http://127.0.0.1:*"
+                  - "http://[::1]:*"
+                allowed-methods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - PATCH
+                  - OPTIONS
+                allowed-headers:
+                  - "*"
           routes:
             - id: videojuegos
               uri: "lb://videojuegos"
@@ -57,6 +73,19 @@ springdoc:
     path: /swagger-ui.html
     disable-swagger-default-url: true
     urls-primary-name: Videojuegos
+    try-it-out-enabled: true
+    display-request-duration: true
+    deep-linking: true
+    doc-expansion: none
+    operations-sorter: method
+    tags-sorter: alpha
+    supported-submit-methods:
+      - get
+      - post
+      - put
+      - delete
+      - patch
+      - options
     urls:
       - name: Videojuegos
         url: /videojuegos/v3/api-docs

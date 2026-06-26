@@ -22,8 +22,8 @@ public class OpenApiConfig {
                         .description("API para controlar stock por videojuego, consultar bajo stock y registrar entradas o salidas de inventario.")
                         .license(new License().name("Proyecto academico Duoc UC")))
                 .addServersItem(new Server()
-                        .url("http://localhost:8080")
-                        .description("API Gateway Docker/local"));
+                        .url("/")
+                        .description("API Gateway actual"));
     }
     @Bean
     OperationCustomizer inventarioResponsesCustomizer() {

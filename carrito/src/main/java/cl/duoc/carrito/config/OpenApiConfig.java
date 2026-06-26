@@ -22,8 +22,8 @@ public class OpenApiConfig {
                         .description("API para agregar productos al carrito, consultar resumen por usuario y mostrar nombres de usuario/videojuego y resenas asociadas.")
                         .license(new License().name("Proyecto academico Duoc UC")))
                 .addServersItem(new Server()
-                        .url("http://localhost:8080")
-                        .description("API Gateway Docker/local"));
+                        .url("/")
+                        .description("API Gateway actual"));
     }
     @Bean
     OperationCustomizer carritoResponsesCustomizer() {

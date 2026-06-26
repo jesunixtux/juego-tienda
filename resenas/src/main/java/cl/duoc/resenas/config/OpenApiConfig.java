@@ -22,8 +22,8 @@ public class OpenApiConfig {
                         .description("API para crear resenas, mostrar nombres de usuario y consultar reportes por fecha o puntuacion.")
                         .license(new License().name("Proyecto academico Duoc UC")))
                 .addServersItem(new Server()
-                        .url("http://localhost:8080")
-                        .description("API Gateway Docker/local"));
+                        .url("/")
+                        .description("API Gateway actual"));
     }
     @Bean
     OperationCustomizer resenasResponsesCustomizer() {

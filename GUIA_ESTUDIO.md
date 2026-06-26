@@ -255,6 +255,8 @@ Que debes explicar:
 - Las respuestas documentan codigos comunes como 400, 401, 404, 409, 500 y 502 segun el caso.
 - Ya no aparece el candado `Authorize` porque no se exige Bearer token.
 - El login se puede mostrar como endpoint funcional, pero no es requisito para probar el resto.
+- Los OpenAPI usan servidor relativo `/`, por eso `Execute` llama al mismo host donde abriste Swagger.
+- Si `Execute` solo muestra el curl, revisar que el microservicio seleccionado este levantado y que Swagger se abra con `localhost:8080`.
 
 Credenciales demo:
 
@@ -307,6 +309,8 @@ DELETE /auth/credenciales/{id}
 Punto importante:
 
 - Password se guarda con SHA-256 y sal.
+- Password obligatoria con minimo 5 caracteres.
+- Si falta o tiene menos de 5 caracteres responde `400 Contrasena invalida`.
 - No se expone `passwordHash` en las respuestas.
 - Login devuelve datos de usuario y un token informativo.
 
@@ -321,6 +325,11 @@ POST /usuarios
 PUT  /usuarios/{id}
 DELETE /usuarios/{id}
 ```
+
+Punto importante:
+
+- `/usuarios` administra datos personales.
+- La cuenta con password se crea por `/auth/registro`.
 
 Punto importante:
 
@@ -867,23 +876,25 @@ Ver si `8080`, `8761`, `8888` o `3307` estan ocupados. Cambiar puertos en `.env`
 
 ### Swagger no muestra cambios
 
-Reconstruir imagenes:
+Si estas en Docker, reconstruir imagenes:
 
 ```bash
 docker compose build
 docker compose up -d
 ```
 
-Luego refrescar navegador.
-
-### Login devuelve 401
-
-Revisar correo y password:
+Si estas en IntelliJ con XAMPP, reiniciar `ApiGatewayApplication` y el microservicio que cambiaste. Luego abrir:
 
 ```text
-jesus@tiendajuegos.cl / cliente123
-admin@tiendajuegos.cl / admin123
+http://localhost:8080/swagger-ui/index.html?urls.primaryName=Videojuegos
 ```
+
+### Swagger muestra curl pero no ejecuta
+
+1. Verificar que `ApiGatewayApplication` este corriendo.
+2. Verificar que el microservicio seleccionado este corriendo.
+3. Abrir Swagger con `localhost`, no con una IP distinta.
+4. Presionar `Try it out`, completar JSON y luego `Execute`.
 
 ### Login devuelve 401
 
@@ -940,6 +951,7 @@ La pauta pide JUnit, Mockito, asserts y estructura clara. En este proyecto puede
 
 - `VideoJuegoServiceTests`: valida plataformas permitidas, plataforma invalida y busqueda por precio.
 - `UsuarioServiceTests`: valida correo duplicado, activo por defecto y desactivacion.
+- `AuthenticationControllerValidationTests`: valida password ausente, password corta y password valida de 5 caracteres en `/auth/registro`.
 - `AuthenticationServiceTests`: valida registro, password hasheada, login invalido y credencial desactivada.
 - `PasswordHashServiceTests`: valida que la password no quede en texto plano y que el hash permita comparar correctamente.
 - `CarritoServiceTests`: usa mocks de Feign para videojuegos, usuarios y resenas; valida subtotal, resumen y resena del usuario.

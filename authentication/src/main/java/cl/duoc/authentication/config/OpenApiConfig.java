@@ -19,11 +19,11 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Tienda Videojuegos - Autenticacion")
                         .version("1.0.0")
-                        .description("API para registrar usuarios, iniciar sesion, emitir JWT y administrar credenciales.")
+                        .description("API para crear cuentas con password obligatoria, iniciar sesion, emitir token informativo y administrar credenciales.")
                         .license(new License().name("Proyecto academico Duoc UC")))
                 .addServersItem(new Server()
-                        .url("http://localhost:8080")
-                        .description("API Gateway Docker/local"));
+                        .url("/")
+                        .description("API Gateway actual"));
     }
     @Bean
     OperationCustomizer authenticationResponsesCustomizer() {

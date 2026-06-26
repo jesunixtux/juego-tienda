@@ -22,8 +22,8 @@ public class OpenApiConfig {
                         .description("API para crear pagos desde el resumen del carrito, listar pagos por usuario, cambiar estados y anular transacciones.")
                         .license(new License().name("Proyecto academico Duoc UC")))
                 .addServersItem(new Server()
-                        .url("http://localhost:8080")
-                        .description("API Gateway Docker/local"));
+                        .url("/")
+                        .description("API Gateway actual"));
     }
     @Bean
     OperationCustomizer pagosResponsesCustomizer() {

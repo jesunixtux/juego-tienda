@@ -21,7 +21,9 @@ Contenido incluido:
 - Scripts para ejecutar local sin Docker y para Docker.
 - Pruebas JUnit/Mockito e integracion.
 - Swagger/OpenAPI actualizado sin candado JWT obligatorio.
+- Swagger/OpenAPI con Try-it-out habilitado y CORS local para Execute.
 - API Gateway sin Spring Security; enruta los microservicios por Eureka.
+- Creacion de cuentas con password obligatoria, minimo 5 caracteres y error personalizado.
 
 URLs locales principales:
 - API Gateway: http://localhost:8080

@@ -131,6 +131,16 @@ run_request "Login fallido controlado" "401" "Credenciales invalidas" \
   -H "Content-Type: application/json" \
   -d '{"correo":"jesus@tiendajuegos.cl","password":"incorrecta"}'
 
+run_request "Login rechaza password corta" "400" "Contrasena invalida" \
+  -X POST "$BASE_URL/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"correo":"jesus@tiendajuegos.cl","password":"1234"}'
+
+run_request "Registro rechaza password corta" "400" "La contrasena invalida: debe tener minimo 5 caracteres" \
+  -X POST "$BASE_URL/auth/registro" \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Cuenta","apellido":"Invalida","correo":"cuenta.invalida@tiendajuegos.cl","telefono":"+56912345678","direccion":"Santiago","rol":"CLIENTE","password":"1234"}'
+
 run_request "Carrito muestra nombreUsuario" "200" "nombreUsuario" "${AUTH_HEADER[@]}" "$BASE_URL/carrito/usuario/2"
 run_request "Carrito muestra nombreVideojuego" "200" "nombreVideojuego" "${AUTH_HEADER[@]}" "$BASE_URL/carrito/usuario/2"
 run_request "Carrito incluye campo resena" "200" "resena" "${AUTH_HEADER[@]}" "$BASE_URL/carrito/usuario/2"

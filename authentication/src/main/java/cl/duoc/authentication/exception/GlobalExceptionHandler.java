@@ -22,9 +22,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException exception, HttpServletRequest request) {
         Map<String, String> errors = new LinkedHashMap<>();
         exception.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
+                errors.putIfAbsent(error.getField(), error.getDefaultMessage()));
 
-        ErrorResponse response = buildResponse(HttpStatus.BAD_REQUEST, "Datos invalidos", request, errors);
+        String message = hasPasswordError(errors) ? "Contrasena invalida" : "Datos invalidos";
+        ErrorResponse response = buildResponse(HttpStatus.BAD_REQUEST, message, request, errors);
         LOGGER.warn("Validation error path={} fields={}", request.getRequestURI(), errors.keySet());
         return ResponseEntity.badRequest().body(response);
     }
@@ -59,5 +60,11 @@ public class GlobalExceptionHandler {
                 message,
                 request.getRequestURI(),
                 errors);
+    }
+
+    private boolean hasPasswordError(Map<String, String> errors) {
+        return errors.keySet().stream()
+                .map(String::toLowerCase)
+                .anyMatch(field -> field.contains("password"));
     }
 }

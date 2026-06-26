@@ -179,6 +179,40 @@
       ]
     },
     {
+      "name": "Auth - crear cuenta valida",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Postman\",\n  \"apellido\": \"Demo\",\n  \"correo\": \"postman{{$timestamp}}@tiendajuegos.cl\",\n  \"telefono\": \"+56912345678\",\n  \"direccion\": \"Santiago\",\n  \"rol\": \"CLIENTE\",\n  \"password\": \"12345\"\n}"
+        },
+        "url": "{{baseUrl}}/auth/registro"
+      }
+    },
+    {
+      "name": "Auth - error password corta",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Postman\",\n  \"apellido\": \"Error\",\n  \"correo\": \"postman.error{{$timestamp}}@tiendajuegos.cl\",\n  \"telefono\": \"+56912345678\",\n  \"direccion\": \"Santiago\",\n  \"rol\": \"CLIENTE\",\n  \"password\": \"1234\"\n}"
+        },
+        "url": "{{baseUrl}}/auth/registro"
+      }
+    },
+    {
       "name": "Carrito - usuario 2",
       "request": {
         "method": "GET",
