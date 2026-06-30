@@ -26,17 +26,14 @@ import java.util.Optional;
 public class AuthenticationService {
     private final CredencialRepository credencialRepository;
     private final UsuarioClient usuarioClient;
-    private final JwtService jwtService;
     private final PasswordHashService passwordHashService;
 
     public AuthenticationService(
             CredencialRepository credencialRepository,
             UsuarioClient usuarioClient,
-            JwtService jwtService,
             PasswordHashService passwordHashService) {
         this.credencialRepository = credencialRepository;
         this.usuarioClient = usuarioClient;
-        this.jwtService = jwtService;
         this.passwordHashService = passwordHashService;
     }
 
@@ -162,10 +159,7 @@ public class AuthenticationService {
                 usuario.rol(),
                 mensaje,
                 true,
-                usuario.id(),
-                jwtService.generarToken(usuario),
-                "Bearer",
-                jwtService.getExpirationSeconds()
+                usuario.id()
         );
     }
 }

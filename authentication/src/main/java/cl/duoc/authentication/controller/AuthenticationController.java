@@ -26,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication", description = "Registro, login, emision de token informativo y administracion de credenciales.")
+@Tag(name = "Authentication", description = "Registro, login funcional y administracion de credenciales.")
 public class AuthenticationController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationController.class);
 
@@ -45,7 +45,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Iniciar sesion", description = "Valida correo y password de minimo 5 caracteres, y devuelve un token informativo para pruebas.")
+    @Operation(summary = "Iniciar sesion", description = "Valida correo y password de minimo 5 caracteres, y devuelve los datos del usuario.")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         LOGGER.info("Intento de login correo={}", request.correo());
         return ResponseEntity.ok(authenticationService.login(request));

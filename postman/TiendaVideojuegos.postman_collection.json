@@ -8,10 +8,6 @@
     {
       "key": "baseUrl",
       "value": "http://localhost:8080"
-    },
-    {
-      "key": "token",
-      "value": ""
     }
   ],
   "item": [
@@ -162,21 +158,7 @@
           "raw": "{\n  \"correo\": \"jesus@tiendajuegos.cl\",\n  \"password\": \"cliente123\"\n}"
         },
         "url": "{{baseUrl}}/auth/login"
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "const body = pm.response.json();",
-              "if (body.token) {",
-              "  pm.collectionVariables.set('token', body.token);",
-              "}"
-            ]
-          }
-        }
-      ]
+      }
     },
     {
       "name": "Auth - crear cuenta valida",

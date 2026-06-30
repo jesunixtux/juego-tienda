@@ -20,7 +20,7 @@ El proyecto es una tienda de videojuegos construida con arquitectura de microser
 
 La idea principal para explicar:
 
-> El cliente no llama directamente a cada microservicio. Primero entra por el API Gateway, que redirige la peticion al microservicio correcto usando Eureka. Cada microservicio tiene su propia base de datos MySQL y sus tablas se crean con Flyway. En esta version no se usa Spring Security ni se exige JWT para consumir endpoints.
+> El cliente no llama directamente a cada microservicio. Primero entra por el API Gateway, que redirige la peticion al microservicio correcto usando Eureka. Cada microservicio tiene su propia base de datos MySQL y sus tablas se crean con Flyway. En esta version no se usa Spring Security ni se exige token para consumir endpoints.
 
 ## 2. Arquitectura
 
@@ -88,8 +88,8 @@ Responsabilidades:
 
 - Recibe todas las peticiones.
 - Redirige rutas como `/videojuegos`, `/usuarios`, `/carrito`, `/pagos`, etc.
-- No aplica Spring Security ni exige JWT.
-- Permite probar todos los endpoints desde Swagger/Postman sin header `Authorization`.
+- No aplica Spring Security ni exige token.
+- Permite probar todos los endpoints desde Swagger/Postman sin header de autorizacion.
 
 Ejemplo:
 
@@ -137,7 +137,7 @@ Responsabilidades:
 
 - Lee la carpeta `config-microservicios`.
 - Entrega configuracion externa a cada microservicio.
-- Centraliza puertos, base de datos, Eureka, JWT y Swagger.
+- Centraliza puertos, base de datos, Eureka y Swagger.
 
 Ejemplo:
 
@@ -217,9 +217,9 @@ Flujo:
 
 1. El usuario llama a `/auth/login`.
 2. `authentication` valida correo y password hasheada.
-3. Si es correcto, devuelve datos del usuario y un token informativo.
-4. El API Gateway no valida ese token; solo enruta al microservicio correspondiente.
-5. En Swagger/Postman se pueden probar los endpoints sin `Authorization`.
+3. Si es correcto, devuelve datos funcionales del usuario.
+4. El API Gateway no valida tokens; solo enruta al microservicio correspondiente.
+5. En Swagger/Postman se pueden probar los endpoints sin autorizacion.
 
 Como explicarlo al profesor:
 
@@ -253,7 +253,7 @@ Que debes explicar:
 - Los endpoints tienen resumen y descripcion funcional.
 - Los modelos muestran ejemplos de JSON, como usuario, videojuego, carrito, pago, pedido, resena e inventario.
 - Las respuestas documentan codigos comunes como 400, 401, 404, 409, 500 y 502 segun el caso.
-- Ya no aparece el candado `Authorize` porque no se exige Bearer token.
+- Ya no aparece el candado `Authorize` porque no se exige token.
 - El login se puede mostrar como endpoint funcional, pero no es requisito para probar el resto.
 - Los OpenAPI usan servidor relativo `/`, por eso `Execute` llama al mismo host donde abriste Swagger.
 - Si `Execute` solo muestra el curl, revisar que el microservicio seleccionado este levantado y que Swagger se abra con `localhost:8080`.
@@ -312,7 +312,7 @@ Punto importante:
 - Password obligatoria con minimo 5 caracteres.
 - Si falta o tiene menos de 5 caracteres responde `400 Contrasena invalida`.
 - No se expone `passwordHash` en las respuestas.
-- Login devuelve datos de usuario y un token informativo.
+- Login devuelve datos de usuario.
 
 ### Usuarios
 
@@ -775,11 +775,11 @@ Crea y actualiza tablas con migraciones SQL. Evita crear la base de datos manual
 
 ### Como se maneja la autenticacion?
 
-Con el microservicio `authentication`. Valida correo y password, devuelve datos del usuario y un token informativo. El API Gateway no exige ese token porque se quito Spring Security para facilitar las pruebas del proyecto.
+Con el microservicio `authentication`. Valida correo y password, devuelve datos del usuario y mantiene las credenciales hasheadas. El API Gateway no exige token porque se quito Spring Security para facilitar las pruebas del proyecto.
 
 ### Donde se valida el token?
 
-En esta version no se valida en el Gateway. El token se emite como demostracion de login, pero no bloquea endpoints.
+En esta version no hay token que validar. El proyecto queda abierto para pruebas academicas por Swagger, Postman, Docker e IntelliJ.
 
 ### Por que se usa SHA-256 con sal?
 
@@ -828,7 +828,7 @@ Agregar la plataforma en `PLATAFORMAS_PERMITIDAS` y actualizar el texto visible.
 
 ### Agregar seguridad nuevamente si el profesor lo pide
 
-Si pidieran proteger rutas, habria que agregar nuevamente una dependencia de seguridad, crear una configuracion del gateway y validar el token antes de enrutar. Actualmente esa capa esta retirada para que todos los endpoints sean probables sin bloqueo.
+Si pidieran proteger rutas, habria que agregar nuevamente una dependencia de seguridad, crear una configuracion del gateway y definir una estrategia de autorizacion. Actualmente esa capa esta retirada para que todos los endpoints sean probables sin bloqueo.
 
 ### Agregar un microservicio nuevo
 
@@ -915,7 +915,7 @@ Con Docker no se necesita XAMPP. El MySQL de Docker queda aislado y se expone en
 - "Eureka permite descubrir microservicios por nombre."
 - "Config Server centraliza configuracion externa."
 - "Flyway versiona la base de datos."
-- "JWT permite proteger rutas sin guardar sesion en el servidor."
+- "En esta version no usamos Spring Security; el Gateway queda abierto y solo enruta."
 - "OpenFeign permite que un microservicio consuma otro por nombre registrado en Eureka."
 - "Docker Compose levanta todo el ecosistema con un solo comando."
 - "Cada microservicio tiene una responsabilidad y su propia base de datos."

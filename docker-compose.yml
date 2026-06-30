@@ -141,8 +141,6 @@ services:
     environment:
       <<: *service-env
       EUREKA_INSTANCE_HOSTNAME: authentication
-      JWT_SECRET: ${JWT_SECRET:-tienda-videojuegos-docker-secret-change-me}
-      JWT_EXPIRATION_MINUTES: "120"
     depends_on: *service-depends
     restart: unless-stopped
 

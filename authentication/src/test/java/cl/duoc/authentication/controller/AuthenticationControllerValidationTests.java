@@ -71,10 +71,7 @@ class AuthenticationControllerValidationTests {
                 "CLIENTE",
                 "Registro exitoso",
                 true,
-                99L,
-                "token-demo",
-                "Bearer",
-                7200L
+                99L
         ));
 
         mockMvc.perform(post("/auth/registro")

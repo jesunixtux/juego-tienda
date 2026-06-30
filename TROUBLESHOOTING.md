@@ -381,35 +381,29 @@ docker compose up -d
 
 ---
 
-## 10. JWT no valida entre Authentication y API Gateway
+## 10. Swagger o Postman pide autorizacion
 
 ### Sintoma
 
-El login funciona, pero las rutas privadas fallan con token invalido.
+Swagger muestra un candado, Postman intenta enviar un header de autorizacion o parece que una ruta pide credenciales.
 
 ### Causa
 
-`authentication` y `api-gateway` deben usar el mismo `JWT_SECRET`.
+La coleccion, el navegador o una version antigua del proyecto puede tener configuracion de autorizacion guardada.
 
 ### Solucion rapida
 
-Crear `.env`:
-
-```powershell
-copy .env.example .env
-```
-
-Agregar o revisar:
-
-```env
-JWT_SECRET=tienda-videojuegos-secret-local
-```
-
-Reiniciar:
+Actualizar la pagina y limpiar autorizacion en Swagger/Postman. En esta version el API Gateway no usa Spring Security y no exige token.
 
 ```powershell
 docker compose down
-docker compose up -d
+docker compose up -d --build
+```
+
+Si estas en IntelliJ, reinicia primero `api-gateway` y luego vuelve a abrir:
+
+```powershell
+http://localhost:8080/swagger-ui/index.html
 ```
 
 ---

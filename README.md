@@ -239,7 +239,7 @@ Detener y borrar tambien la base de datos Docker:
 docker compose down -v
 ```
 
-Importante: en esta version el API Gateway no aplica Spring Security ni exige JWT. `JWT_SECRET` solo lo usa `authentication` para emitir el token informativo de login.
+Importante: en esta version el API Gateway no aplica Spring Security ni exige tokens. Los endpoints quedan abiertos para facilitar la evaluacion, Swagger y Postman.
 
 La carpeta `backup-tienda` queda ignorada por Git y Docker para que no se copie al contexto ni se toque durante la preparacion.
 
@@ -428,9 +428,9 @@ Si en Swagger presionas `Execute` y solo ves el curl, revisa primero que el micr
 http://localhost:8080/swagger-ui/index.html?urls.primaryName=Videojuegos
 ```
 
-## Autenticacion y JWT
+## Autenticacion Sin Spring Security
 
-El proyecto no usa Spring Security ni bloquea rutas en el API Gateway. El microservicio `authentication` permite registrar usuarios, iniciar sesion y emitir un token HMAC-SHA256 como dato informativo para pruebas, pero no es obligatorio enviarlo para consumir los endpoints.
+El proyecto no usa Spring Security ni bloquea rutas en el API Gateway. El microservicio `authentication` permite registrar usuarios, iniciar sesion y cambiar password, pero no emite ni exige tokens.
 
 Ejemplo de login:
 
@@ -446,7 +446,7 @@ Content-Type: application/json
 }
 ```
 
-La respuesta incluye `token`, `tipoToken` y `expiraEnSegundos`, pero Swagger/Postman pueden probar los endpoints sin `Authorization`.
+La respuesta incluye datos funcionales del usuario, como `nombreUsuario`, `correo`, `rol`, `mensaje`, `autenticado` y `usuarioId`.
 
 ## Puertos
 
@@ -652,10 +652,7 @@ Respuesta esperada:
   "rol": "CLIENTE",
   "mensaje": "Login exitoso",
   "autenticado": true,
-  "usuarioId": 5,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "tipoToken": "Bearer",
-  "expiraEnSegundos": 7200
+  "usuarioId": 5
 }
 ```
 
@@ -1368,7 +1365,7 @@ Los logs se ven en la consola donde se ejecuta cada microservicio.
 ## Consideraciones Importantes
 
 - No hay frontend incluido; el sistema se consume por API REST.
-- No hay autenticacion con JWT.
+- No hay autenticacion con tokens.
 - El API Gateway no aplica seguridad; solo enruta.
 - El pago no descuenta inventario automaticamente.
 - El pago no crea pedido automaticamente.

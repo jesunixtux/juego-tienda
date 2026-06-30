@@ -18,7 +18,3 @@ spring:
 eureka:
   client:
     enabled: false
-
-jwt:
-  secret: tienda-videojuegos-test-secret-change-me-2026
-  expiration-minutes: 60

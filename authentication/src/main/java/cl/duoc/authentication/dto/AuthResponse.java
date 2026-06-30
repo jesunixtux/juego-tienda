@@ -3,8 +3,8 @@ package cl.duoc.authentication.dto;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "Respuesta de autenticacion con datos de usuario y token informativo.")
-@JsonPropertyOrder({"nombreUsuario", "correo", "rol", "mensaje", "autenticado", "usuarioId", "token", "tipoToken", "expiraEnSegundos"})
+@Schema(description = "Respuesta de autenticacion funcional con datos del usuario.")
+@JsonPropertyOrder({"nombreUsuario", "correo", "rol", "mensaje", "autenticado", "usuarioId"})
 public record AuthResponse(
         @Schema(description = "Nombre completo del usuario autenticado.", example = "Jesus Emilio")
         String nombreUsuario,
@@ -17,12 +17,6 @@ public record AuthResponse(
         @Schema(description = "Indica si la autenticacion fue exitosa.", example = "true")
         Boolean autenticado,
         @Schema(description = "ID del usuario asociado.", example = "1")
-        Long usuarioId,
-        @Schema(description = "Token generado por authentication. En esta version el gateway no exige token.", example = "eyJhbGciOiJIUzI1NiJ9...")
-        String token,
-        @Schema(description = "Tipo de token.", example = "Bearer")
-        String tipoToken,
-        @Schema(description = "Tiempo de expiracion en segundos.", example = "7200")
-        Long expiraEnSegundos
+        Long usuarioId
 ) {
 }

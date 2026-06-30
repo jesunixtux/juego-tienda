@@ -35,9 +35,6 @@ class AuthenticationServiceTests {
     @Mock
     private UsuarioClient usuarioClient;
 
-    @Mock
-    private JwtService jwtService;
-
     private AuthenticationService authenticationService;
     private PasswordHashService passwordHashService;
 
@@ -47,13 +44,12 @@ class AuthenticationServiceTests {
         authenticationService = new AuthenticationService(
                 credencialRepository,
                 usuarioClient,
-                jwtService,
                 passwordHashService
         );
     }
 
     @Test
-    void registrarCreaUsuarioCredencialHasheadaYToken() {
+    void registrarCreaUsuarioYCredencialHasheada() {
         RegistroRequest request = new RegistroRequest(
                 "Jesus",
                 "Emilio",
@@ -66,8 +62,6 @@ class AuthenticationServiceTests {
 
         when(credencialRepository.existsByCorreoIgnoreCase(request.correo())).thenReturn(false);
         when(usuarioClient.crear(any())).thenReturn(usuario);
-        when(jwtService.generarToken(usuario)).thenReturn("jwt-demo");
-        when(jwtService.getExpirationSeconds()).thenReturn(3600L);
 
         AuthResponse response = authenticationService.registrar(request);
 
@@ -78,7 +72,6 @@ class AuthenticationServiceTests {
         assertThat(response.autenticado()).isTrue();
         assertThat(response.usuarioId()).isEqualTo(2L);
         assertThat(response.nombreUsuario()).isEqualTo("Jesus Emilio");
-        assertThat(response.token()).isEqualTo("jwt-demo");
         assertThat(credencialGuardada.getPasswordHash()).isNotEqualTo("cliente123");
         assertThat(passwordHashService.matches("cliente123", credencialGuardada.getPasswordHash())).isTrue();
     }

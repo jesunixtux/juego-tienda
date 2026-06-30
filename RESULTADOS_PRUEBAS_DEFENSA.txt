@@ -6,13 +6,13 @@ Java usado: 25.0.3
 
 CAMBIOS VALIDADOS
 - API Gateway sin Spring Security.
-- API Gateway sin filtro JWT obligatorio.
+- API Gateway sin filtro de seguridad obligatorio.
 - Authentication sin dependencia directa de librerias de seguridad para el hash de password.
 - Passwords con hash SHA-256 y sal.
 - Creacion de cuentas exige password obligatoria con minimo 5 caracteres.
 - Error personalizado `Contrasena invalida` para password ausente o corta.
 - Migracion Flyway V6 para convertir credenciales demo al nuevo formato de hash.
-- Swagger/OpenAPI sin esquema Bearer obligatorio.
+- Swagger/OpenAPI sin esquema de autorizacion obligatorio.
 - Swagger/OpenAPI con configuracion local de respaldo para IntelliJ.
 - API Gateway muestra los 8 documentos OpenAPI desde `/v3/api-docs/swagger-config`.
 - Swagger UI tiene Try-it-out habilitado y CORS local configurado en API Gateway.
@@ -54,7 +54,7 @@ RESULTADO MAVEN CLEAN TEST
 - api-gateway: tests=1, failures=0, errors=0, skipped=0
 
 TOTAL
-- 46 pruebas ejecutadas.
+- 45 pruebas ejecutadas.
 - 0 fallas.
 - 0 errores.
 - 0 omitidas.
@@ -66,7 +66,7 @@ RESULTADO DOCKER
 
 RESULTADO POSTMAN
 - postman/TiendaVideojuegos.postman_collection.json: JSON valido.
-- La coleccion ya no define Bearer global obligatorio.
+- La coleccion no define autorizacion global obligatoria.
 - La coleccion incluye `Auth - crear cuenta valida` y `Auth - error password corta`.
 
 RESULTADO SWAGGER
