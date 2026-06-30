@@ -1,0 +1,342 @@
+PLAN PARA DOCUMENTAR LOS MICROSERVICIOS EN WORD
+
+Objetivo:
+Crear una documentacion tecnica defendible del proyecto juego-tienda, usando
+Swagger/OpenAPI, codigo fuente, pruebas y evidencia de despliegue.
+
+Estrategia recomendada:
+Hacer un Word maestro llamado:
+Documentacion_Tecnica_Microservicios_Tienda_Videojuegos.docx
+
+Ese Word debe contener todos los servicios en un solo documento. Es mejor que
+tener muchos documentos separados, porque en la defensa permite buscar rapido
+y mostrar arquitectura, endpoints, Docker, Swagger y pruebas desde un solo lugar.
+
+
+1. ESTRUCTURA DEL WORD MAESTRO
+
+1. Portada
+- Nombre del proyecto.
+- Integrantes.
+- Asignatura.
+- Profesor.
+- Fecha.
+- Repositorio GitHub.
+
+2. Resumen del sistema
+- Dominio: tienda de videojuegos.
+- Objetivo: gestionar catalogo, usuarios, autenticacion simple, carrito,
+  pagos, pedidos, resenas e inventario.
+- Arquitectura: microservicios con API Gateway, Eureka y Config Server.
+
+3. Arquitectura general
+- Diagrama simple:
+  Cliente/Postman/Swagger -> API Gateway -> Microservicios -> MySQL
+  Microservicios -> Eureka
+  Microservicios -> Config Server
+- Tabla de servicios y puertos.
+- Explicacion de comunicacion interna por Eureka/Feign.
+
+4. Despliegue local y Docker
+- Como ejecutar local con XAMPP/MySQL.
+- Como ejecutar con Docker Compose.
+- Puertos principales.
+- Variables de entorno importantes.
+- Diferencia entre DB local 3306 y DB Docker 3307.
+
+5. Documentacion por microservicio
+Para cada microservicio usar la misma plantilla:
+- Nombre.
+- Responsabilidad.
+- Base path.
+- Entidad principal.
+- DTOs principales.
+- Endpoints.
+- Validaciones.
+- Errores personalizados.
+- Comunicacion con otros servicios.
+- Base de datos y migraciones Flyway.
+- Pruebas asociadas.
+- Evidencia Swagger.
+
+6. API Gateway
+- Rutas expuestas.
+- Swagger centralizado.
+- Por que se elimino Spring Security.
+- Como el gateway centraliza el acceso a los servicios.
+
+7. Pruebas
+- JUnit/Mockito.
+- Pruebas de integracion.
+- Script test-definitivo.sh.
+- JaCoCo y cobertura real.
+- Evidencia de resultados.
+
+8. Postman y Swagger
+- Como probar endpoints.
+- Coleccion Postman.
+- Swagger UI.
+- Ejemplos de request y response.
+
+9. Problemas encontrados y soluciones
+- Error antiguo de MariaDB/XAMPP mysql.proc.
+- Migracion de properties a YAML.
+- Docker Desktop debe estar activo.
+- Espera de servicios antes de probar.
+
+10. Conclusiones
+- Que se logro.
+- Que falta mejorar.
+- Riesgo principal: subir cobertura JaCoCo.
+
+
+2. SERVICIOS A DOCUMENTAR
+
+Servicios de infraestructura:
+- eureka
+- config-server
+- api-gateway
+
+Servicios de negocio/API:
+- videojuegos
+- usuarios
+- authentication
+- carrito
+- pagos
+- pedidos
+- resenas
+- inventario
+
+Servicios/containers de apoyo en Docker:
+- mysql
+- apache-php
+- phpmyadmin
+
+
+3. ENDPOINTS REALES POR MICROSERVICIO
+
+VIDEOJUEGOS
+Base path: /videojuegos
+- GET /videojuegos
+- GET /videojuegos/{id}
+- POST /videojuegos
+- PUT /videojuegos/{id}
+- DELETE /videojuegos/{id}
+- GET /videojuegos/buscar
+
+Puntos a explicar:
+- Catalogo de videojuegos.
+- Busqueda por plataforma.
+- Busqueda por rango de precio.
+- Validacion de plataforma.
+- Error personalizado para plataforma invalida.
+
+
+USUARIOS
+Base path: /usuarios
+- GET /usuarios
+- GET /usuarios/{id}
+- GET /usuarios/buscar
+- POST /usuarios
+- PUT /usuarios/{id}
+- DELETE /usuarios/{id}
+
+Puntos a explicar:
+- Gestion de cuentas de usuario.
+- Se muestran nombres y datos utiles, no solo IDs.
+- Es usado por authentication, carrito, pagos, pedidos y resenas.
+
+
+AUTHENTICATION
+Base path: /auth
+- POST /auth/registro
+- POST /auth/login
+- GET /auth/credenciales
+- GET /auth/credenciales/{id}
+- PUT /auth/credenciales/{id}/password
+- DELETE /auth/credenciales/{id}
+
+Puntos a explicar:
+- Registro de cuenta.
+- Login simple sin JWT/Spring Security.
+- Password obligatorio.
+- Password minimo 5 caracteres.
+- Error personalizado para contrasena invalida.
+- No se expone passwordHash en la lista de credenciales.
+
+
+CARRITO
+Base path: /carrito
+- GET /carrito/usuario/{usuarioId}
+- GET /carrito/usuario/{usuarioId}/resumen
+- GET /carrito/{id}
+- POST /carrito
+- PUT /carrito/{id}/cantidad
+- DELETE /carrito/{id}
+- DELETE /carrito/usuario/{usuarioId}
+
+Puntos a explicar:
+- Carrito por usuario.
+- Muestra nombreUsuario.
+- Muestra nombreVideojuego.
+- Incluye resena cuando corresponde.
+- Calcula total del carrito.
+- Consume usuarios, videojuegos y resenas.
+
+
+PAGOS
+Base path: /pagos
+- GET /pagos
+- GET /pagos/{id}
+- GET /pagos/usuario/{usuarioId}
+- POST /pagos
+- PUT /pagos/{id}/estado
+- PUT /pagos/{id}/anular
+- DELETE /pagos/{id}
+
+Puntos a explicar:
+- Registra pagos de usuarios.
+- Muestra nombreUsuario.
+- Puede anular pago.
+- Consume carrito y usuarios.
+
+
+PEDIDOS
+Base path: /pedidos
+- GET /pedidos
+- GET /pedidos/{id}
+- POST /pedidos
+- PUT /pedidos/{id}
+- DELETE /pedidos/{id}
+- GET /pedidos/detalle
+- GET /pedidos/usuario/{usuarioId}
+- GET /pedidos/reportes/fecha
+- GET /pedidos/reportes/precio
+
+Puntos a explicar:
+- Gestion de pedidos.
+- Muestra detalle con usuario.
+- Reportes por fecha.
+- Reportes por precio.
+- Consume usuarios.
+
+
+RESENAS
+Base path: /resenas
+- GET /resenas
+- GET /resenas/{id}
+- POST /resenas
+- PUT /resenas/{id}
+- DELETE /resenas/{id}
+- GET /resenas/detalle
+- GET /resenas/usuario/{usuarioId}
+- GET /resenas/reportes/fecha
+- GET /resenas/reportes/puntuacion
+
+Puntos a explicar:
+- Gestion de resenas de videojuegos.
+- Muestra nombreUsuario.
+- Permite consultar resenas por usuario.
+- Tiene reportes por fecha y puntuacion.
+- Es consumido por carrito para enriquecer informacion.
+
+
+INVENTARIO
+Base path: /inventario
+- GET /inventario
+- GET /inventario/bajo-stock
+- GET /inventario/{id}
+- GET /inventario/videojuego/{videojuegoId}
+- POST /inventario
+- PUT /inventario/{id}
+- PUT /inventario/videojuego/{videojuegoId}/stock
+- PUT /inventario/videojuego/{videojuegoId}/entrada
+- PUT /inventario/videojuego/{videojuegoId}/salida
+- DELETE /inventario/{id}
+
+Puntos a explicar:
+- Control de stock.
+- Muestra nombreVideojuego.
+- Consulta bajo stock.
+- Entrada y salida de inventario.
+- Consume videojuegos.
+
+
+4. EVIDENCIAS QUE DEBEN IR EN EL WORD
+
+Capturas recomendadas:
+- Swagger UI en http://localhost:8080/swagger-ui/index.html
+- Selector Swagger con todas las APIs.
+- Ejemplo GET /videojuegos.
+- Ejemplo GET /videojuegos/buscar?precioMin=10000&precioMax=16000.
+- Ejemplo POST /auth/login.
+- Ejemplo error password corta.
+- Ejemplo error plataforma invalida.
+- GET /carrito/usuario/2 mostrando nombreUsuario y nombreVideojuego.
+- Eureka mostrando servicios registrados.
+- docker compose ps con contenedores arriba.
+- JaCoCo index de al menos authentication, carrito y total del reporte.
+- Resultado del script test-definitivo.sh.
+
+
+5. COMO GENERAR LA DOCUMENTACION DESDE SWAGGER
+
+1. Levantar el proyecto:
+   docker compose up --build -d
+
+2. Abrir Swagger:
+   http://localhost:8080/swagger-ui/index.html
+
+3. Para cada API:
+   - Seleccionar el microservicio en el selector superior.
+   - Copiar endpoints principales.
+   - Probar un GET y un POST/PUT si corresponde.
+   - Guardar captura de request/response.
+
+4. Descargar o consultar OpenAPI JSON:
+   - /videojuegos/v3/api-docs
+   - /usuarios/v3/api-docs
+   - /auth/v3/api-docs
+   - /carrito/v3/api-docs
+   - /pagos/v3/api-docs
+   - /pedidos/v3/api-docs
+   - /resenas/v3/api-docs
+   - /inventario/v3/api-docs
+
+5. Apagar:
+   docker compose down --remove-orphans
+
+
+6. REPARTO DE TRABAJO RECOMENDADO
+
+Si documentas todo tu mismo:
+1. Primero arquitectura y Docker.
+2. Luego Swagger/API Gateway.
+3. Luego microservicios de negocio en este orden:
+   videojuegos, usuarios, authentication, carrito, pagos, pedidos, resenas,
+   inventario.
+4. Al final pruebas, JaCoCo y problemas solucionados.
+
+Si el equipo reparte:
+- Persona 1: arquitectura, Docker, gateway, eureka, config-server.
+- Persona 2: videojuegos, usuarios, authentication, carrito.
+- Persona 3: pagos, pedidos, resenas, inventario, pruebas.
+
+
+7. CRITERIO PARA LA DEFENSA
+
+Para cada microservicio debes poder responder:
+- Que problema resuelve.
+- Que endpoint principal tiene.
+- Que datos recibe y que devuelve.
+- Que validacion importante aplica.
+- Que error personalizado puede devolver.
+- Que otro microservicio consume o quien lo consume a el.
+- Como se ve en Swagger.
+- Que prueba confirma que funciona.
+
+La frase clave para defender:
+"El API Gateway centraliza la entrada, Eureka permite descubrir servicios,
+Config Server centraliza configuracion YAML, cada microservicio mantiene su
+responsabilidad de negocio, y Swagger/Postman permiten probar los endpoints de
+forma documentada."

@@ -1,0 +1,283 @@
+RESULTADOS TESTEO EXHAUSTIVO EFT - TIENDA VIDEOJUEGOS
+
+Fecha de ejecucion: 2026-06-30 16:49:59 -04
+Proyecto: juego-tienda
+Ruta: /Users/jesus/Documents/GitHub/juego-tienda
+
+RESUMEN FINAL
+
+Estado general: OK
+
+El proyecto compila, ejecuta pruebas automatizadas, genera reportes JaCoCo,
+levanta correctamente en modo local con MySQL/XAMPP y tambien levanta completo
+con Docker Compose. La bateria funcional definitiva paso en ambos modos.
+
+El punto pendiente mas importante para la defensa es la cobertura: JaCoCo esta
+configurado y funcionando, pero la cobertura total actual es 37.59%, por debajo
+del 80% solicitado en la pauta. No se debe afirmar que el proyecto tiene 80%
+hasta agregar mas pruebas unitarias y/o de integracion.
+
+
+1. PRUEBAS MAVEN, JUNIT Y JACOCO
+
+Comando ejecutado:
+bash scripts/coverage-report.sh
+
+Resultado:
+- 11 microservicios compilados.
+- 45 tests ejecutados.
+- 0 failures.
+- 0 errors.
+- 0 skipped.
+- JaCoCo genero reportes HTML por microservicio.
+
+Cobertura por instrucciones:
+- eureka: 37.50%
+- config-server: 37.50%
+- videojuegos: 38.09%
+- usuarios: 22.47%
+- authentication: 54.24%
+- carrito: 50.71%
+- pagos: 39.31%
+- pedidos: 25.00%
+- resenas: 25.62%
+- inventario: 28.98%
+- api-gateway: 37.50%
+- TOTAL: 37.59%
+
+Reportes HTML:
+- eureka/target/site/jacoco/index.html
+- config-server/target/site/jacoco/index.html
+- videojuegos/target/site/jacoco/index.html
+- usuarios/target/site/jacoco/index.html
+- authentication/target/site/jacoco/index.html
+- carrito/target/site/jacoco/index.html
+- pagos/target/site/jacoco/index.html
+- pedidos/target/site/jacoco/index.html
+- resenas/target/site/jacoco/index.html
+- inventario/target/site/jacoco/index.html
+- api-gateway/target/site/jacoco/index.html
+
+
+2. VALIDACIONES ESTATICAS DEL PROYECTO
+
+Docker Compose:
+- docker compose config -q: OK
+
+Scripts:
+- bash -n scripts/test-definitivo.sh: OK
+- bash -n scripts/coverage-report.sh: OK
+- bash -n scripts/local-up.sh: OK
+- bash -n scripts/local-down.sh: OK
+- bash -n scripts/preparar-dependencias-docker.sh: OK
+
+Postman:
+- jq empty postman/TiendaVideojuegos.postman_collection.json: OK
+
+Configuracion:
+- No quedan application.properties activos de Spring; se migraron a YAML.
+- Solo quedan properties del Maven Wrapper, lo cual es normal.
+
+Seguridad:
+- No se encontraron restos activos de Spring Security/JWT en codigo principal.
+- La coleccion Postman y los scripts no usan Authorization Bearer.
+- El gateway enruta sin exigir seguridad obligatoria.
+
+
+3. PRUEBA LOCAL CON MYSQL/XAMPP
+
+Modo probado:
+- Servicios Spring ejecutados localmente con scripts/local-up.sh.
+- Base de datos en localhost:3306, compatible con XAMPP/MariaDB local.
+- Gateway en http://localhost:8080.
+- Eureka en http://localhost:8761.
+- Config Server en http://localhost:8888.
+
+Comando ejecutado:
+bash scripts/local-up.sh
+bash scripts/test-definitivo.sh
+bash scripts/local-down.sh
+
+Resultado:
+- 37 verificaciones funcionales: OK.
+- Todos los servicios se detuvieron al terminar.
+- Puertos verificados cerrados despues del apagado:
+  8080, 8761, 8888, 8081, 8082, 8083, 8084, 8085, 8086, 8087, 8088.
+
+Verificaciones funcionales realizadas:
+- Eureka registra aplicaciones.
+- Config Server entrega videojuegos/default.
+- Swagger UI disponible.
+- Swagger UI configura selector de APIs.
+- OpenAPI videojuegos disponible.
+- OpenAPI usuarios disponible.
+- OpenAPI authentication disponible.
+- OpenAPI carrito disponible.
+- OpenAPI pagos disponible.
+- OpenAPI pedidos disponible.
+- OpenAPI resenas disponible.
+- OpenAPI inventario disponible.
+- Videojuegos lista catalogo.
+- Videojuegos incluye catalogo realista nuevo.
+- Videojuegos busca por plataforma PC.
+- Videojuegos busca por rango de precio.
+- Login cliente demo.
+- Gateway enruta usuarios sin seguridad obligatoria.
+- Usuarios lista cuentas demo.
+- Usuarios incluye clientes realistas nuevos.
+- Auth lista credenciales sin passwordHash.
+- Login admin demo.
+- Login fallido controlado.
+- Login rechaza password corta.
+- Registro rechaza password corta.
+- Carrito muestra nombreUsuario.
+- Carrito muestra nombreVideojuego.
+- Carrito incluye campo resena.
+- Resumen carrito muestra total.
+- Pagos muestra nombreUsuario.
+- Pagos lista pagos.
+- Pedidos muestra nombreUsuario.
+- Resenas muestra nombreUsuario.
+- Inventario muestra nombreVideojuego.
+- Inventario bajo stock responde.
+- Validacion devuelve errores controlados.
+- Plataforma invalida devuelve error personalizado.
+
+
+4. PRUEBA DOCKER COMPOSE COMPLETA
+
+Docker Desktop:
+- Docker daemon: OK.
+
+Comando ejecutado:
+docker compose up --build -d
+bash scripts/test-definitivo.sh
+docker compose down --remove-orphans
+
+Resultado:
+- Build de imagenes Docker: OK.
+- MySQL 8.4 en contenedor: OK.
+- Apache/PHP en contenedor: OK.
+- phpMyAdmin en contenedor: OK.
+- Eureka en contenedor: OK.
+- Config Server en contenedor: OK.
+- 8 microservicios de negocio en contenedor: OK.
+- API Gateway en contenedor: OK.
+- 37 verificaciones funcionales por gateway: OK.
+- docker compose down elimino contenedores y red del stack.
+- Puertos verificados cerrados despues del apagado:
+  8080, 8081, 8082, 8761, 8888, 3307.
+
+Puertos Docker usados durante la prueba:
+- Gateway: http://localhost:8080
+- Apache/PHP: http://localhost:8081
+- phpMyAdmin: http://localhost:8082
+- Eureka: http://localhost:8761
+- Config Server: http://localhost:8888
+- MySQL Docker: localhost:3307 -> contenedor 3306
+
+
+5. SWAGGER / OPENAPI
+
+Swagger UI:
+- http://localhost:8080/swagger-ui/index.html
+- Estado: OK en local y Docker.
+
+Swagger config:
+- tryItOutEnabled: true
+- supportedSubmitMethods: get, post, put, delete, patch, options
+- urls.primaryName: Videojuegos
+
+APIs documentadas en selector Swagger:
+- Authentication
+- Carrito
+- Inventario
+- Pagos
+- Pedidos
+- Resenas
+- Usuarios
+- Videojuegos
+
+
+6. OBSERVACIONES DE LOGS
+
+No se detectaron fallos funcionales.
+
+Avisos no bloqueantes vistos durante la ejecucion local:
+- Hibernate avisa que la base local tipo MariaDB/XAMPP reporta version MySQL 5.5.5.
+  La aplicacion funciona, pero para despliegue Docker se usa MySQL 8.4 y no presenta
+  el problema antiguo de mysql.proc.
+- Spring Data JPA muestra aviso de open-in-view habilitado por defecto.
+  No bloquea el proyecto; se puede desactivar si el profesor pide buenas practicas.
+- Spring Cloud LoadBalancer avisa que usa cache por defecto.
+  Es normal en desarrollo local.
+- SpringDoc avisa que Swagger esta habilitado.
+  En este proyecto se necesita habilitado para la evaluacion.
+- En Mac, Netty puede mostrar un aviso de DNS nativo en api-gateway.
+  No rompio rutas ni pruebas; en Docker/Linux no es el mismo escenario.
+- Eureka puede registrar un error al detenerse con kill del script local.
+  Ocurre durante apagado, no durante funcionamiento.
+
+
+7. RIESGOS REALES PARA LA DEFENSA
+
+Riesgo 1: Cobertura JaCoCo inferior a 80%.
+- Estado: pendiente.
+- Mitigacion: agregar mas pruebas unitarias de servicios y controllers,
+  especialmente authentication, carrito, videojuegos, usuarios, pedidos,
+  resenas, pagos e inventario.
+
+Riesgo 2: Docker Desktop debe estar abierto antes de usar docker compose.
+- Estado: controlado.
+- Mitigacion: abrir Docker Desktop y confirmar con docker info.
+
+Riesgo 3: En modo local sin Docker se depende de MySQL/XAMPP.
+- Estado: controlado.
+- Mitigacion: iniciar MySQL/XAMPP antes de IntelliJ y usar los YAML locales.
+
+Riesgo 4: Esperar pocos segundos despues de levantar servicios.
+- Estado: controlado.
+- Mitigacion: esperar a que Eureka, Config Server y Gateway respondan antes
+  de probar endpoints.
+
+
+8. COMANDOS RECOMENDADOS PARA REPETIR LA PRUEBA
+
+Pruebas Maven + JaCoCo:
+bash scripts/coverage-report.sh
+
+Modo local con XAMPP/MySQL:
+bash scripts/local-up.sh
+bash scripts/test-definitivo.sh
+bash scripts/local-down.sh
+
+Modo Docker:
+docker compose up --build -d
+bash scripts/test-definitivo.sh
+docker compose down --remove-orphans
+
+Swagger:
+http://localhost:8080/swagger-ui/index.html
+
+Eureka:
+http://localhost:8761
+
+phpMyAdmin con Docker:
+http://localhost:8082
+
+
+CONCLUSION
+
+La aplicacion esta operativa para uso local y para Docker. La ruta mas segura
+para la defensa es demostrar:
+
+1. docker compose up --build -d
+2. Swagger en http://localhost:8080/swagger-ui/index.html
+3. GET /videojuegos
+4. GET /videojuegos/buscar?precioMin=10000&precioMax=16000
+5. POST /auth/login con cliente demo
+6. GET /carrito/usuario/2
+7. Error personalizado con password corta o plataforma invalida
+8. docker compose down --remove-orphans
+
+La mejora prioritaria antes del cierre final es subir cobertura JaCoCo.

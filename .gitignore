@@ -3,5 +3,7 @@
 **/target/
 .DS_Store
 .env
+.local-logs/
+.local-pids/
 docker/maven-repository/*
 !docker/maven-repository/.gitkeep
