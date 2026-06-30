@@ -31,7 +31,7 @@ La pauta indica que si no puedes explicar el proyecto, ejecutar la aplicacion o 
 | Swagger/OpenAPI | Cumple | `http://localhost:8080/swagger-ui/index.html` |
 | Docker/local | Cumple | `docker-compose.yml`, `Dockerfile`, scripts locales |
 | Pruebas unitarias | Cumple funcionalmente | 45 tests pasan |
-| Cobertura 80% | Riesgo | No hay JaCoCo configurado para demostrar porcentaje |
+| Cobertura 80% | Riesgo controlado | JaCoCo genera reportes, pero la ultima medicion total fue 37.59% |
 | GitHub/Trello | Depende de evidencia externa | Mostrar commits y tablero en defensa |
 
 ## 3. Prioridades reales para salvar la defensa
@@ -227,6 +227,25 @@ for service in eureka config-server videojuegos usuarios authentication carrito 
 done
 ```
 
+Reportes de cobertura JaCoCo:
+
+```bash
+bash scripts/coverage-report.sh
+```
+
+En Windows:
+
+```powershell
+.\scripts\coverage-report.ps1
+```
+
+Reportes HTML:
+
+```text
+videojuegos/target/site/jacoco/index.html
+authentication/target/site/jacoco/index.html
+```
+
 Prueba funcional completa con servicios levantados:
 
 ```bash
@@ -240,6 +259,18 @@ Resultado verificado el 2026-06-29:
 0 failures
 0 errors
 0 skipped
+```
+
+Resultado JaCoCo verificado el 2026-06-30:
+
+```text
+TOTAL 37.59%
+```
+
+Detalle en:
+
+```text
+RESULTADOS_COBERTURA_JACOCO.txt
 ```
 
 ## 8. Prueba en vivo lista para memorizar
@@ -353,11 +384,11 @@ Que decir:
 
 ### Riesgo 1 - Cobertura 80%
 
-La pauta pide pruebas con al menos 80% de cobertura. El proyecto tiene pruebas y pasan, pero no tiene JaCoCo configurado para demostrar porcentaje.
+La pauta pide pruebas con al menos 80% de cobertura. El proyecto ahora tiene JaCoCo configurado, pero la ultima medicion total fue 37.59%, por lo que aun falta agregar pruebas si el docente exige estrictamente ese porcentaje.
 
 No digas "tenemos 80%" si no tienes reporte. Di:
 
-> Tenemos pruebas unitarias y de contexto ejecutadas correctamente. Si el docente exige reporte porcentual, se debe generar con JaCoCo.
+> Tenemos pruebas unitarias y de contexto ejecutadas correctamente, y JaCoCo genera un reporte HTML de cobertura por microservicio. El porcentaje se revisa en `target/site/jacoco/index.html`.
 
 ### Riesgo 2 - Cambios despues de entrega
 
@@ -382,6 +413,7 @@ La pauta dice que no se permite ayuda externa ni IA durante la sesion. Lleva est
 - Proyecto abre en IntelliJ.
 - XAMPP MySQL o Docker Desktop funcionando.
 - `./mvnw test` funciona en al menos `authentication` y `videojuegos`.
+- `bash scripts/coverage-report.sh` genera reportes JaCoCo.
 - `docker compose config -q` no muestra errores.
 - Swagger abre en `localhost:8080`.
 - Eureka abre en `localhost:8761`.
@@ -390,4 +422,3 @@ La pauta dice que no se permite ayuda externa ni IA durante la sesion. Lleva est
 - Puedes cambiar una validacion y probarla.
 - Puedes explicar por que no se usa Spring Security.
 - Tienes GitHub/Trello listos para mostrar aporte personal.
-

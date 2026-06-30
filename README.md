@@ -1013,6 +1013,47 @@ foreach ($module in $modules) {
 }
 ```
 
+### Cobertura con JaCoCo
+
+Todos los microservicios tienen configurado `jacoco-maven-plugin`. Para generar reportes HTML de cobertura desde la raiz:
+
+```bash
+bash scripts/coverage-report.sh
+```
+
+En Windows PowerShell:
+
+```powershell
+.\scripts\coverage-report.ps1
+```
+
+Cada reporte queda en:
+
+```text
+<microservicio>/target/site/jacoco/index.html
+```
+
+Ejemplos:
+
+```text
+videojuegos/target/site/jacoco/index.html
+authentication/target/site/jacoco/index.html
+```
+
+Tambien se puede generar un reporte individual:
+
+```bash
+cd videojuegos
+./mvnw clean verify
+open target/site/jacoco/index.html
+```
+
+La ultima medicion guardada esta en:
+
+```text
+RESULTADOS_COBERTURA_JACOCO.txt
+```
+
 ## Prueba Definitiva con curl
 
 Estos comandos se ejecutan cuando todos los servicios estan levantados y el API Gateway esta disponible en `http://localhost:8080`.

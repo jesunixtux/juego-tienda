@@ -1,0 +1,55 @@
+RESULTADOS DE COBERTURA JACOCO
+
+Fecha de ejecucion: 2026-06-30
+Comando usado: bash scripts/coverage-report.sh
+Java usado: 25.0.3
+JaCoCo: 0.8.15
+
+Resultado de ejecucion:
+- Todos los microservicios compilaron correctamente.
+- Todas las pruebas se ejecutaron sin fallos.
+- JaCoCo genero reportes HTML por microservicio.
+
+Resumen por instrucciones:
+
+| Microservicio | Cobertura |
+| --- | ---: |
+| eureka | 37.50% |
+| config-server | 37.50% |
+| videojuegos | 38.09% |
+| usuarios | 22.47% |
+| authentication | 54.24% |
+| carrito | 50.71% |
+| pagos | 39.31% |
+| pedidos | 25.00% |
+| resenas | 25.62% |
+| inventario | 28.98% |
+| api-gateway | 37.50% |
+| TOTAL | 37.59% |
+
+Reportes HTML generados:
+
+- eureka/target/site/jacoco/index.html
+- config-server/target/site/jacoco/index.html
+- videojuegos/target/site/jacoco/index.html
+- usuarios/target/site/jacoco/index.html
+- authentication/target/site/jacoco/index.html
+- carrito/target/site/jacoco/index.html
+- pagos/target/site/jacoco/index.html
+- pedidos/target/site/jacoco/index.html
+- resenas/target/site/jacoco/index.html
+- inventario/target/site/jacoco/index.html
+- api-gateway/target/site/jacoco/index.html
+
+Nota para la defensa:
+
+La pauta EFT pide 80% de cobertura. JaCoCo ya queda configurado y demuestra la cobertura real, pero el porcentaje actual aun no llega al 80%.
+No conviene afirmar que el proyecto tiene 80% hasta reforzar las pruebas unitarias.
+
+Servicios mas convenientes para mejorar cobertura primero:
+
+1. authentication: ya tiene 54.24%, es el mas cercano y tiene reglas claras.
+2. carrito: ya tiene 50.71%, subirlo aporta bastante al flujo de negocio.
+3. videojuegos: es facil de explicar y defender, aunque parte desde 38.09%.
+4. pagos, pedidos, resenas e inventario: conviene agregar pruebas de service y controller si se busca subir cobertura global.
+
