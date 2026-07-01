@@ -62,7 +62,7 @@ config-microservicios/*.yml
 - Spring Cloud Netflix Eureka
 - Spring Cloud Gateway WebFlux
 - Spring Cloud OpenFeign
-- Token HMAC-SHA256 emitido por `authentication` para pruebas
+- Autenticacion funcional sin tokens obligatorios ni Spring Security
 - Hash SHA-256 con sal para passwords
 - Spring Data JPA
 - Spring Validation
@@ -94,6 +94,16 @@ GUIA_ESTUDIO.md
 ```
 
 Incluye arquitectura, explicacion de microservicios, uso de Docker, Swagger, autenticacion sin Spring Security, preguntas probables del profesor y pasos para mover el proyecto a otra PC.
+
+## Entrega Final AVA
+
+La entrega oficial debe ser solo el enlace directo al repositorio GitHub:
+
+```text
+https://github.com/jesunixtux/juego-tienda
+```
+
+No se debe subir `.zip`, `.rar`, `.jar`, carpetas `target`, copias duplicadas ni PDFs al AVA. El repositorio debe quedar limpio y ejecutable desde fuente.
 
 ## Requisitos
 

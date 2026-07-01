@@ -218,7 +218,12 @@ services:
       EUREKA_PREFER_IP_ADDRESS: "true"
       EUREKA_INSTANCE_HOSTNAME: api-gateway
       API_GATEWAY_PORT: "8080"
+      API_GATEWAY_STARTUP_DELAY: "${API_GATEWAY_STARTUP_DELAY:-45}"
       JAVA_OPTS: "-XX:MaxRAMPercentage=75"
+    entrypoint:
+      - sh
+      - -c
+      - sleep $${API_GATEWAY_STARTUP_DELAY:-45} && exec java $$JAVA_OPTS -jar /app/app.jar
     depends_on:
       eureka:
         condition: service_started

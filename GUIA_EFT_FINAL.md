@@ -30,8 +30,8 @@ La pauta indica que si no puedes explicar el proyecto, ejecutar la aplicacion o 
 | YAML | Cumple | `application.yml` y `config-microservicios/*.yml` |
 | Swagger/OpenAPI | Cumple | `http://localhost:8080/swagger-ui/index.html` |
 | Docker/local | Cumple | `docker-compose.yml`, `Dockerfile`, scripts locales |
-| Pruebas unitarias | Cumple funcionalmente | 45 tests pasan |
-| Cobertura 80% | Riesgo controlado | JaCoCo genera reportes, pero la ultima medicion total fue 37.59% |
+| Pruebas unitarias | Cumple | 145 tests pasan |
+| Cobertura 80% | Cumple | JaCoCo global 90.96% |
 | GitHub/Trello | Depende de evidencia externa | Mostrar commits y tablero en defensa |
 
 ## 3. Prioridades reales para salvar la defensa
@@ -198,8 +198,8 @@ Gateway: http://localhost:8080
 Swagger: http://localhost:8080/swagger-ui/index.html
 Eureka: http://localhost:8761
 Config: http://localhost:8888/videojuegos/default
-phpMyAdmin: http://localhost:8081
-Apache/PHP: http://localhost:8082
+Apache/PHP: http://localhost:8081
+phpMyAdmin: http://localhost:8082
 ```
 
 Logs:
@@ -252,19 +252,19 @@ Prueba funcional completa con servicios levantados:
 bash scripts/test-definitivo.sh
 ```
 
-Resultado verificado el 2026-06-29:
+Resultado verificado el 2026-07-01:
 
 ```text
-45 tests
+145 tests
 0 failures
 0 errors
 0 skipped
 ```
 
-Resultado JaCoCo verificado el 2026-06-30:
+Resultado JaCoCo verificado el 2026-07-01:
 
 ```text
-TOTAL 37.59%
+TOTAL 90.96%
 ```
 
 Detalle en:
@@ -384,11 +384,11 @@ Que decir:
 
 ### Riesgo 1 - Cobertura 80%
 
-La pauta pide pruebas con al menos 80% de cobertura. El proyecto ahora tiene JaCoCo configurado, pero la ultima medicion total fue 37.59%, por lo que aun falta agregar pruebas si el docente exige estrictamente ese porcentaje.
+La pauta pide pruebas con al menos 80% de cobertura. El proyecto queda sobre esa meta con 145 tests y 90.96% de cobertura global JaCoCo.
 
-No digas "tenemos 80%" si no tienes reporte. Di:
+Puedes decir:
 
-> Tenemos pruebas unitarias y de contexto ejecutadas correctamente, y JaCoCo genera un reporte HTML de cobertura por microservicio. El porcentaje se revisa en `target/site/jacoco/index.html`.
+> Tenemos pruebas unitarias y de contexto ejecutadas correctamente. JaCoCo reporta 90.96% global y tambien genera HTML por microservicio en `target/site/jacoco/index.html`.
 
 ### Riesgo 2 - Cambios despues de entrega
 

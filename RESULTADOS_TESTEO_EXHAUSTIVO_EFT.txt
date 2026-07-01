@@ -221,8 +221,8 @@ Avisos no bloqueantes vistos durante la ejecucion local:
 
 7. RIESGOS REALES PARA LA DEFENSA
 
-Riesgo 1: Cobertura JaCoCo inferior a 80%.
-- Estado: controlado.
+Riesgo 1: Cobertura JaCoCo bajo 80%.
+- Estado: mitigado.
 - Evidencia: cobertura global actual 90.96%, con 145 tests ejecutados y
   0 failures / 0 errors en bash scripts/coverage-report.sh.
 

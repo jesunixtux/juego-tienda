@@ -6,6 +6,10 @@ Proyecto: Tienda de Videojuegos - Microservicios Spring Boot
 Integrante: Jesus Emilio
 Repositorio GitHub: https://github.com/jesunixtux/juego-tienda
 
+IMPORTANTE PARA LA ENTREGA FINAL:
+En AVA se debe pegar solo el link directo al repositorio GitHub. No subir ZIP,
+RAR, JAR, PDF, carpetas target ni copias duplicadas del proyecto.
+
 Contenido incluido:
 - Microservicios Spring Boot.
 - API Gateway.
@@ -68,5 +72,5 @@ Notas:
 - Dentro de Docker los microservicios se conectan a mysql:3306.
 - La password MySQL por defecto esta vacia, salvo que se cambie en .env.
 - No se usa Spring Security ni tokens obligatorios; el Gateway queda abierto para la evaluacion.
-- La carpeta backup-tienda no se incluye en el ZIP de entrega.
-- Las carpetas target, .git y docker/maven-repository no se incluyen en el ZIP para reducir peso.
+- La carpeta backup-tienda esta ignorada y no forma parte del repositorio final.
+- Las carpetas target, output, tmp y docker/maven-repository no deben enviarse como entrega; se regeneran localmente.

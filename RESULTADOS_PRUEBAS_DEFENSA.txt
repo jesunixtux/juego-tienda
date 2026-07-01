@@ -1,85 +1,92 @@
-RESULTADOS DE PRUEBAS - DEFENSA TECNICA PARCIAL 3
+RESULTADOS DE PRUEBAS - CIERRE EFT
 
-Fecha de ejecucion: 2026-06-25
+Fecha de ejecucion: 2026-07-01
 Proyecto: juego-tienda
 Java usado: 25.0.3
+Docker usado: Docker Desktop 29.5.3
 
 CAMBIOS VALIDADOS
-- API Gateway sin Spring Security.
-- API Gateway sin filtro de seguridad obligatorio.
-- Authentication sin dependencia directa de librerias de seguridad para el hash de password.
-- Passwords con hash SHA-256 y sal.
-- Creacion de cuentas exige password obligatoria con minimo 5 caracteres.
-- Error personalizado `Contrasena invalida` para password ausente o corta.
-- Migracion Flyway V6 para convertir credenciales demo al nuevo formato de hash.
-- Swagger/OpenAPI sin esquema de autorizacion obligatorio.
-- Swagger/OpenAPI con configuracion local de respaldo para IntelliJ.
-- API Gateway muestra los 8 documentos OpenAPI desde `/v3/api-docs/swagger-config`.
-- Swagger UI tiene Try-it-out habilitado y CORS local configurado en API Gateway.
-- Scripts para ejecucion local sin Docker en macOS/Linux y Windows PowerShell.
-- Docker Compose mantiene el despliegue dockerizado.
+- API Gateway sin Spring Security y sin filtro de seguridad obligatorio.
+- Authentication mantiene registro/login funcional con password obligatoria.
+- Password minima: 5 caracteres.
+- Passwords guardadas con SHA-256 y sal, no en texto plano.
+- Error personalizado para password ausente o corta.
+- Error personalizado para plataforma invalida en videojuegos.
+- Swagger/OpenAPI centralizado en API Gateway.
+- Swagger Try-it-out habilitado y CORS local configurado.
+- API Gateway ajustado para evitar 503 al arrancar en Docker:
+  - espera inicial de 45 segundos en Docker Compose.
+  - Eureka refresh cada 5 segundos.
+  - cache del LoadBalancer desactivada en Gateway.
+- Script `scripts/test-definitivo.sh` reforzado con espera de Gateway/Eureka
+  y reintentos para 502/503 transitorios.
+- Scripts locales para macOS/Linux y Windows PowerShell.
+- Docker Compose con MySQL, Apache/PHP, phpMyAdmin y microservicios.
 
-COMANDOS EJECUTADOS
-1. Pruebas completas por microservicio:
-   for service in eureka config-server videojuegos usuarios authentication carrito pagos pedidos resenas inventario api-gateway; do
-     (cd "$service" && ./mvnw clean test)
-   done
+PRUEBAS UNITARIAS Y COBERTURA
+Comando ejecutado:
 
-2. Validacion de scripts shell:
-   bash -n scripts/local-up.sh scripts/local-down.sh scripts/test-definitivo.sh scripts/preparar-dependencias-docker.sh
+  bash scripts/coverage-report.sh
 
-3. Validacion de Docker Compose:
-   docker compose config -q
+Resultado esperado/verificado:
+- 145 tests ejecutados.
+- 0 failures.
+- 0 errors.
+- 0 skipped.
+- Cobertura global JaCoCo: 90.96%.
 
-4. Validacion de coleccion Postman:
-   jq empty postman/TiendaVideojuegos.postman_collection.json
+COBERTURA POR MODULO
+- eureka: 37.50%
+- config-server: 37.50%
+- videojuegos: 92.54%
+- usuarios: 91.76%
+- authentication: 96.07%
+- carrito: 90.03%
+- pagos: 88.41%
+- pedidos: 89.53%
+- resenas: 91.20%
+- inventario: 89.60%
+- api-gateway: 37.50%
+- TOTAL: 90.96%
 
-5. Validacion Swagger en API Gateway sin Config Server:
-   ./mvnw spring-boot:run -Dspring-boot.run.arguments="--server.port=18080 --spring.cloud.config.enabled=false --eureka.client.enabled=false --spring.cloud.discovery.enabled=false"
-   curl http://localhost:18080/v3/api-docs/swagger-config
-   curl -I http://localhost:18080/swagger-ui/index.html
-   curl -i -X OPTIONS http://localhost:18080/auth/registro -H "Origin: http://127.0.0.1:8080" -H "Access-Control-Request-Method: POST"
+PRUEBA DOCKER FUNCIONAL
+Comandos ejecutados:
 
-RESULTADO MAVEN CLEAN TEST
-- eureka: tests=1, failures=0, errors=0, skipped=0
-- config-server: tests=1, failures=0, errors=0, skipped=0
-- videojuegos: tests=6, failures=0, errors=0, skipped=0
-- usuarios: tests=4, failures=0, errors=0, skipped=0
-- authentication: tests=11, failures=0, errors=0, skipped=0
-- carrito: tests=5, failures=0, errors=0, skipped=0
-- pagos: tests=4, failures=0, errors=0, skipped=0
-- pedidos: tests=4, failures=0, errors=0, skipped=0
-- resenas: tests=4, failures=0, errors=0, skipped=0
-- inventario: tests=5, failures=0, errors=0, skipped=0
-- api-gateway: tests=1, failures=0, errors=0, skipped=0
+  docker compose down --remove-orphans
+  docker compose up --build -d
+  BASE_URL=http://localhost:8080 EUREKA_URL=http://localhost:8761 CONFIG_URL=http://localhost:8888 bash scripts/test-definitivo.sh
 
-TOTAL
-- 45 pruebas ejecutadas.
-- 0 fallas.
-- 0 errores.
-- 0 omitidas.
+Resultado:
+- Docker Compose construyo las imagenes.
+- MySQL quedo healthy.
+- Eureka registro las aplicaciones.
+- Config Server entrego configuracion.
+- Swagger UI respondio.
+- Los 8 OpenAPI de negocio respondieron.
+- CRUD/listados principales respondieron.
+- Login valido respondio.
+- Login incorrecto respondio 401 controlado.
+- Password corta respondio 400 controlado.
+- Carrito mostro nombreUsuario, nombreVideojuego y resena.
+- Pagos, pedidos, resenas e inventario respondieron con datos enriquecidos.
+- Validaciones y plataforma invalida devolvieron errores controlados.
+- Resultado final del script: OK - todas las pruebas pasaron.
 
-RESULTADO DOCKER
+VALIDACIONES DE LIMPIEZA Y PORTABILIDAD
 - docker compose config -q: OK.
-- docker compose build api-gateway authentication: no ejecutado correctamente porque Docker Desktop/daemon no estaba activo.
-- Mensaje recibido: Cannot connect to the Docker daemon at unix:///Users/jesus/.docker/run/docker.sock. Is the docker daemon running?
+- Coleccion Postman: JSON valido.
+- Scripts shell: sintaxis OK.
+- No hay application.properties activos; la configuracion viva esta en YAML.
+- No hay Spring Security activo en codigo ni dependencias principales.
+- El repositorio no debe incluir .jar, .zip, .rar, target ni copias duplicadas.
 
-RESULTADO POSTMAN
-- postman/TiendaVideojuegos.postman_collection.json: JSON valido.
-- La coleccion no define autorizacion global obligatoria.
-- La coleccion incluye `Auth - crear cuenta valida` y `Auth - error password corta`.
+URLs PRINCIPALES
+- API Gateway: http://localhost:8080
+- Swagger: http://localhost:8080/swagger-ui/index.html
+- Eureka: http://localhost:8761
+- Config Server: http://localhost:8888/videojuegos/default
+- Apache/PHP: http://localhost:8081
+- phpMyAdmin: http://localhost:8082
 
-RESULTADO SWAGGER
-- /swagger-ui/index.html respondio HTTP 200.
-- /v3/api-docs/swagger-config respondio con 8 APIs:
-  Authentication, Carrito, Inventario, Pagos, Pedidos, Resenas, Usuarios y Videojuegos.
-- La API primaria queda configurada como Videojuegos mediante `urls.primaryName`.
-- Try-it-out quedo activo y supportedSubmitMethods incluye GET, POST, PUT, DELETE, PATCH y OPTIONS.
-- CORS local respondio Access-Control-Allow-Origin para http://127.0.0.1:8080.
-
-NOTA PARA LA DEFENSA
-Para probar Docker, abrir Docker Desktop y ejecutar:
-docker compose up -d --build
-
-Para probar local sin Docker, tener MySQL activo en localhost:3306 y ejecutar:
-bash scripts/local-up.sh
+NOTA HONESTA PARA DEFENSA
+No existe garantia absoluta porque depende del PC, puertos disponibles y Docker/XAMPP activo. Pero el proyecto queda probado en unitarias, cobertura, Docker Compose, Swagger, rutas del Gateway, Config Server, Eureka, MySQL y reglas de negocio principales. Si algo falla en presentacion, lo primero es revisar Docker Desktop, puertos 8080/8761/8888/3307 y esperar 90 segundos despues de levantar Docker.

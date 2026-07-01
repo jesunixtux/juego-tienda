@@ -7,6 +7,44 @@ CONFIG_URL="${CONFIG_URL:-http://localhost:8888}"
 
 failures=0
 
+wait_for_stack() {
+  local apps="VIDEOJUEGOS USUARIOS AUTHENTICATION CARRITO PAGOS PEDIDOS RESENAS INVENTARIO"
+  local body
+  local ready
+
+  echo "Esperando Gateway y registro Eureka..."
+
+  for _ in $(seq 1 40); do
+    if curl --max-time 5 -fs "$BASE_URL/swagger-ui/index.html" >/dev/null 2>&1; then
+      break
+    fi
+    sleep 3
+  done
+
+  for _ in $(seq 1 40); do
+    body="$(curl --max-time 5 -fs "$EUREKA_URL/eureka/apps" 2>/dev/null || true)"
+    ready=1
+
+    for app in $apps; do
+      if ! printf '%s' "$body" | grep -q "<name>$app</name>"; then
+        ready=0
+        break
+      fi
+    done
+
+    if [ "$ready" -eq 1 ]; then
+      echo "OK   Gateway disponible y Eureka tiene los servicios principales"
+      echo
+      return
+    fi
+
+    sleep 3
+  done
+
+  echo "WARN No se confirmo Eureka completo antes de probar; continuando para mostrar errores reales."
+  echo
+}
+
 run_request() {
   local name="$1"
   local expected_status="$2"
@@ -17,7 +55,24 @@ run_request() {
   body_file="$(mktemp)"
 
   local status
-  status="$(curl --max-time 10 -s -o "$body_file" -w "%{http_code}" "$@")"
+  local attempt
+  local max_attempts=8
+
+  for attempt in $(seq 1 "$max_attempts"); do
+    : > "$body_file"
+    status="$(curl --max-time 10 -s -o "$body_file" -w "%{http_code}" "$@")"
+
+    if [ "$status" = "$expected_status" ]; then
+      break
+    fi
+
+    if { [ "$status" = "000" ] || [ "$status" = "502" ] || [ "$status" = "503" ]; } && [ "$attempt" -lt "$max_attempts" ]; then
+      sleep 5
+      continue
+    fi
+
+    break
+  done
 
   if [ "$status" != "$expected_status" ]; then
     echo "FAIL $name - esperado HTTP $expected_status, recibido HTTP $status"
@@ -80,6 +135,8 @@ login_cliente_demo() {
 echo "Prueba definitiva Tienda Videojuegos"
 echo "Gateway: $BASE_URL"
 echo
+
+wait_for_stack
 
 run_request "Eureka registra aplicaciones" "200" "applications" "$EUREKA_URL/eureka/apps"
 run_request "Config Server entrega videojuegos/default" "200" "videojuegos" "$CONFIG_URL/videojuegos/default"

@@ -5,5 +5,7 @@
 .env
 .local-logs/
 .local-pids/
+output/
+tmp/
 docker/maven-repository/*
 !docker/maven-repository/.gitkeep

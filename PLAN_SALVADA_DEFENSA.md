@@ -242,8 +242,8 @@ Gateway:    http://localhost:8080
 Swagger:    http://localhost:8080/swagger-ui/index.html?urls.primaryName=Videojuegos
 Eureka:     http://localhost:8761
 Config:     http://localhost:8888/videojuegos/default
-phpMyAdmin: http://localhost:8081
-Apache/PHP: http://localhost:8082
+Apache/PHP: http://localhost:8081
+phpMyAdmin: http://localhost:8082
 ```
 
 Frase para defender:
@@ -393,4 +393,3 @@ Pasos:
 ## 14. Resumen para memorizar
 
 > Para salvar, debo demostrar tres cosas: se ejecutar el proyecto, se usar Swagger y se crear o explicar pruebas. En pruebas siempre digo Given, When, Then. En Swagger muestro metodo, ruta, parametros, request y response. En ejecucion explico local con XAMPP y Docker con docker compose. Si me piden una prueba en vivo, hago una de service con Mockito porque es rapida y segura.
-

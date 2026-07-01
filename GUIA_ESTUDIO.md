@@ -65,7 +65,7 @@ MySQL Docker :3306 interno / 3307 en la PC
 - Flyway para migraciones SQL.
 - MySQL 8.4 en Docker.
 - H2 para pruebas automatizadas.
-- Token HMAC-SHA256 emitido por `authentication` para pruebas.
+- Autenticacion funcional sin tokens obligatorios ni Spring Security.
 - Hash SHA-256 con sal para guardar passwords.
 - Swagger/OpenAPI para documentar y probar endpoints.
 - Docker Compose para levantar todo el sistema.
