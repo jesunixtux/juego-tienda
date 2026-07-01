@@ -7,8 +7,9 @@ JaCoCo: 0.8.15
 
 Resultado de ejecucion:
 - Todos los microservicios compilaron correctamente.
-- Todas las pruebas se ejecutaron sin fallos.
+- Todas las pruebas se ejecutaron sin fallos: 145 tests, 0 failures, 0 errors.
 - JaCoCo genero reportes HTML por microservicio.
+- Se verifico que no hay Spring Security activo en el codigo del proyecto.
 
 Resumen por instrucciones:
 
@@ -16,16 +17,16 @@ Resumen por instrucciones:
 | --- | ---: |
 | eureka | 37.50% |
 | config-server | 37.50% |
-| videojuegos | 38.09% |
-| usuarios | 22.47% |
-| authentication | 54.24% |
-| carrito | 50.71% |
-| pagos | 39.31% |
-| pedidos | 25.00% |
-| resenas | 25.62% |
-| inventario | 28.98% |
+| videojuegos | 92.54% |
+| usuarios | 91.76% |
+| authentication | 96.07% |
+| carrito | 90.03% |
+| pagos | 88.41% |
+| pedidos | 89.53% |
+| resenas | 91.20% |
+| inventario | 89.60% |
 | api-gateway | 37.50% |
-| TOTAL | 37.59% |
+| TOTAL | 90.96% |
 
 Reportes HTML generados:
 
@@ -43,13 +44,19 @@ Reportes HTML generados:
 
 Nota para la defensa:
 
-La pauta EFT pide 80% de cobertura. JaCoCo ya queda configurado y demuestra la cobertura real, pero el porcentaje actual aun no llega al 80%.
-No conviene afirmar que el proyecto tiene 80% hasta reforzar las pruebas unitarias.
+La pauta EFT pide 80% de cobertura. Con esta ejecucion el proyecto queda sobre ese minimo:
+90.96% de cobertura global por instrucciones.
 
-Servicios mas convenientes para mejorar cobertura primero:
+Como explicar la mejora:
 
-1. authentication: ya tiene 54.24%, es el mas cercano y tiene reglas claras.
-2. carrito: ya tiene 50.71%, subirlo aporta bastante al flujo de negocio.
-3. videojuegos: es facil de explicar y defender, aunque parte desde 38.09%.
-4. pagos, pedidos, resenas e inventario: conviene agregar pruebas de service y controller si se busca subir cobertura global.
+1. Se agregaron pruebas unitarias de controladores para validar codigos HTTP y respuestas esperadas.
+2. Se agregaron pruebas de servicios para reglas de negocio: crear, listar, buscar, actualizar, eliminar, duplicados, stock, pagos, login y cambio de password.
+3. Se agregaron pruebas de errores personalizados y fallos de microservicios remotos mediante Feign.
+4. Se agregaron pruebas de configuracion OpenAPI/Swagger para demostrar documentacion tecnica.
+5. Se agregaron pruebas de lifecycle de modelos donde existian calculos automaticos, como fechas, subtotales y estados por defecto.
 
+Comprobacion Spring Security:
+
+- Busqueda realizada:
+  rg -n "spring-boot-starter-security|SecurityConfig|SecurityFilterChain|EnableWebSecurity|PasswordEncoder|BCrypt|JwtService|Authorization: Bearer|tipoToken|expiraEnSegundos"
+- Resultado: sin coincidencias activas fuera de target, backup y repositorio Maven local.

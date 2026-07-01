@@ -87,7 +87,7 @@ Para cada microservicio usar la misma plantilla:
 10. Conclusiones
 - Que se logro.
 - Que falta mejorar.
-- Riesgo principal: subir cobertura JaCoCo.
+- Cobertura JaCoCo reforzada: 90.96% global; foco de defensa en explicar pruebas.
 
 
 2. SERVICIOS A DOCUMENTAR

@@ -12,10 +12,10 @@ El proyecto compila, ejecuta pruebas automatizadas, genera reportes JaCoCo,
 levanta correctamente en modo local con MySQL/XAMPP y tambien levanta completo
 con Docker Compose. La bateria funcional definitiva paso en ambos modos.
 
-El punto pendiente mas importante para la defensa es la cobertura: JaCoCo esta
-configurado y funcionando, pero la cobertura total actual es 37.59%, por debajo
-del 80% solicitado en la pauta. No se debe afirmar que el proyecto tiene 80%
-hasta agregar mas pruebas unitarias y/o de integracion.
+La cobertura JaCoCo fue reforzada despues del primer testeo: el proyecto ahora
+queda en 90.96% de cobertura global por instrucciones, por encima del 80%
+solicitado en la pauta. Se puede defender como evidencia de pruebas unitarias
+aplicadas sobre controllers, services, excepciones, Swagger/OpenAPI y modelos.
 
 
 1. PRUEBAS MAVEN, JUNIT Y JACOCO
@@ -25,7 +25,7 @@ bash scripts/coverage-report.sh
 
 Resultado:
 - 11 microservicios compilados.
-- 45 tests ejecutados.
+- 145 tests ejecutados.
 - 0 failures.
 - 0 errors.
 - 0 skipped.
@@ -34,16 +34,16 @@ Resultado:
 Cobertura por instrucciones:
 - eureka: 37.50%
 - config-server: 37.50%
-- videojuegos: 38.09%
-- usuarios: 22.47%
-- authentication: 54.24%
-- carrito: 50.71%
-- pagos: 39.31%
-- pedidos: 25.00%
-- resenas: 25.62%
-- inventario: 28.98%
+- videojuegos: 92.54%
+- usuarios: 91.76%
+- authentication: 96.07%
+- carrito: 90.03%
+- pagos: 88.41%
+- pedidos: 89.53%
+- resenas: 91.20%
+- inventario: 89.60%
 - api-gateway: 37.50%
-- TOTAL: 37.59%
+- TOTAL: 90.96%
 
 Reportes HTML:
 - eureka/target/site/jacoco/index.html
@@ -222,10 +222,9 @@ Avisos no bloqueantes vistos durante la ejecucion local:
 7. RIESGOS REALES PARA LA DEFENSA
 
 Riesgo 1: Cobertura JaCoCo inferior a 80%.
-- Estado: pendiente.
-- Mitigacion: agregar mas pruebas unitarias de servicios y controllers,
-  especialmente authentication, carrito, videojuegos, usuarios, pedidos,
-  resenas, pagos e inventario.
+- Estado: controlado.
+- Evidencia: cobertura global actual 90.96%, con 145 tests ejecutados y
+  0 failures / 0 errors en bash scripts/coverage-report.sh.
 
 Riesgo 2: Docker Desktop debe estar abierto antes de usar docker compose.
 - Estado: controlado.
@@ -280,4 +279,6 @@ para la defensa es demostrar:
 7. Error personalizado con password corta o plataforma invalida
 8. docker compose down --remove-orphans
 
-La mejora prioritaria antes del cierre final es subir cobertura JaCoCo.
+La mejora prioritaria anterior era subir cobertura JaCoCo; queda resuelta con
+90.96% global. Para la defensa conviene mostrar el archivo
+RESULTADOS_COBERTURA_JACOCO.txt y explicar 2 o 3 tests nuevos de servicios.

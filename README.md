@@ -980,18 +980,26 @@ Carritos demo:
 
 Cada microservicio tiene pruebas de contexto con `mvn test`. Los servicios con JPA usan H2 en memoria durante pruebas, por lo que estas pruebas no necesitan MySQL, Eureka ni Config Server levantados.
 
-Tambien se incluyen pruebas unitarias con JUnit, AssertJ y Mockito sobre la logica de negocio principal:
+Tambien se incluyen pruebas unitarias con JUnit, AssertJ y Mockito sobre la logica de negocio principal. La ultima corrida completa dejo 145 tests exitosos y 90.96% de cobertura global JaCoCo por instrucciones.
 
 - `VideoJuegoServiceTests`: plataformas permitidas, plataforma invalida y busqueda por precio.
+- `VideoJuegoServiceBranchTests`: listar, buscar, actualizar, eliminar, precio minimo/maximo y plataforma vacia.
 - `UsuarioServiceTests`: correo duplicado, activo por defecto y desactivacion.
+- `UsuarioServiceBranchTests`: listar, buscar, actualizar, correo duplicado en update, desactivar inexistente y lifecycle.
 - `AuthenticationControllerValidationTests`: password ausente, password corta y password valida de 5 caracteres en `/auth/registro`.
 - `AuthenticationServiceTests`: registro, password hasheada, login invalido y credencial desactivada.
+- `AuthenticationServiceBranchTests`: login exitoso, cambio de password, credenciales, usuario remoto no encontrado y conflicto remoto.
 - `PasswordHashServiceTests`: verifica que la password no quede en texto plano y que el hash permita validar correctamente.
 - `CarritoServiceTests`: agregado de items, precio remoto, resumen con nombreUsuario/resena y vaciado.
+- `CarritoServiceBranchTests`: item existente, actualizacion de cantidad, eliminacion, fallbacks remotos y subtotal.
 - `PagoServiceTests`: pago aprobado, carrito vacio y nombreUsuario desde usuarios.
+- `PagoServiceBranchTests`: listar por usuario, actualizar estado, anular, eliminar, fallos remotos y lifecycle.
 - `PedidoServiceTests`: validacion de usuario, detalle enriquecido y busqueda por precio.
+- `PedidoServiceBranchTests`: findById con detalle, filtros, update, delete y errores remotos.
 - `ResenaServiceTests`: validacion de usuario, detalle enriquecido y filtro por puntuacion.
+- `ResenaServiceBranchTests`: findAll/findById con usuario, filtros, update, delete y errores remotos.
 - `InventarioServiceTests`: inventario duplicado, bajo stock y stock insuficiente.
+- `InventarioServiceBranchTests`: detalle con videojuego, update, stock, eliminacion, errores remotos y lifecycle.
 
 Para correr todas las pruebas desde la raiz del proyecto:
 
